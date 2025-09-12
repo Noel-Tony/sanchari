@@ -39,9 +39,10 @@ export default function ConsentModal() {
       (error) => {
         if (error.code === error.PERMISSION_DENIED) {
           toast({
-            title: 'Location Access Denied',
-            description: 'To use the app, please enable location access in your browser settings.',
+            title: 'Location Access Required',
+            description: 'To use TripMapper, please enable location access in your browser settings and click "Accept" again.',
             variant: 'destructive',
+            duration: 5000,
           });
         } else {
           toast({
@@ -79,14 +80,14 @@ export default function ConsentModal() {
                 Secure & Anonymous Storage
             </h3>
             <p className="text-muted-foreground">
-                Your trip data is tagged with an anonymized user ID and stored securely on our servers. Your personal information is never shared.
+                Your trip data is tagged with an anonymized user ID and stored securely. Your personal information is never shared.
             </p>
             <h3 className="font-semibold text-lg flex items-center gap-2">
                 <Users className="h-5 w-5 text-primary" />
                 Contribution to Research
             </h3>
             <p className="text-muted-foreground">
-                Anonymous, aggregated data is accessed by planners and researchers (like NATPAC) to analyze travel patterns, model transportation needs, and inform policy decisions for better infrastructure.
+                Anonymous, aggregated data is accessed by planners and researchers to analyze travel patterns, model transportation needs, and inform policy decisions for better infrastructure.
             </p>
         </div>
         <DialogFooter>

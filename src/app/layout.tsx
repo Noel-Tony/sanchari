@@ -23,11 +23,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const { hasConsented } = useConsent();
-  const [isClient, setIsClient] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    setIsClient(true);
+    setHydrated(true);
   }, []);
+
+  if (!hydrated) {
+    // Return null or a loader to avoid hydration mismatch
+    return null; 
+  }
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -46,7 +51,7 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
         >
-          {isClient && !hasConsented ? <ConsentModal /> : children}
+          {!hasConsented ? <ConsentModal /> : children}
           <Toaster />
         </ThemeProvider>
       </body>
