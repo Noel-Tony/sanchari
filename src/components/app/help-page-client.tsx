@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/componen
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Loader2, Send } from 'lucide-react';
-import { askHelpBot } from '@/app/actions';
+import { askHelpBotFlow } from '@/ai/flows/ask-help-bot-flow';
 
 interface Message {
   role: 'user' | 'bot';
@@ -35,7 +35,7 @@ export default function HelpPageClient() {
 
     try {
       const chatHistory = messages.map(m => `${m.role}: ${m.content}`).join('\n');
-      const botResponse = await askHelpBot(chatHistory, input);
+      const botResponse = await askHelpBotFlow({ history: chatHistory, question: input });
       setMessages(prev => [...prev, { role: 'bot', content: botResponse }]);
     } catch (error) {
       console.error('Error getting bot response:', error);

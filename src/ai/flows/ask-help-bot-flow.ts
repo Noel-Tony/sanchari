@@ -47,9 +47,9 @@ User Question:
 `,
 });
 
-const askHelpBotAIFlow = ai.defineFlow(
+export const askHelpBotFlow = ai.defineFlow(
   {
-    name: 'askHelpBotAIFlow',
+    name: 'askHelpBotFlow',
     inputSchema: AskHelpBotInputSchema,
     outputSchema: z.string(),
   },
@@ -58,8 +58,3 @@ const askHelpBotAIFlow = ai.defineFlow(
     return output!;
   }
 );
-
-
-export async function askHelpBotFlow(input: AskHelpBotInput): Promise<AskHelpBotOutput> {
-  return await askHelpBotAIFlow(input);
-}

@@ -8,6 +8,7 @@ import useLocalStorage from '@/hooks/use-local-storage';
 import { Loader2 } from 'lucide-react';
 import useConsent from '@/hooks/use-consent';
 import ConsentModal from '@/components/app/consent-modal';
+import { ThemeProvider } from '@/components/theme-provider';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [auth] = useLocalStorage('auth', { isAuthenticated: false, role: 'user' });
@@ -31,13 +32,20 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     );
   }
 
-  if (!hasConsented) {
-    return (
-      <div className="h-screen w-full bg-background">
-        <ConsentModal onConsent={giveConsent} />
-      </div>
-    );
-  }
-
-  return <AppLayout>{children}</AppLayout>;
+  return (
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      disableTransitionOnChange
+    >
+      {!hasConsented ? (
+        <div className="h-screen w-full bg-background">
+          <ConsentModal onConsent={giveConsent} />
+        </div>
+      ) : (
+        <AppLayout>{children}</AppLayout>
+      )}
+    </ThemeProvider>
+  );
 }
