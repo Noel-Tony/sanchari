@@ -56,7 +56,7 @@ export default function AdminDashboardClient() {
                       {`${Math.round((trip.endTime - trip.startTime) / 60000)} mins`}
                     </TableCell>
                     <TableCell>
-                        {`${trip.distance.toFixed(1)} miles`}
+                        {`${(trip.distance || 0).toFixed(1)} miles`}
                     </TableCell>
                     <TableCell>{trip.coTravellers}</TableCell>
                   </TableRow>
