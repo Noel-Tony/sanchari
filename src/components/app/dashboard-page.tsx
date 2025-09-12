@@ -12,6 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import TripMap from './trip-map';
+import { useJsApiLoader } from '@react-google-maps/api';
 
 interface CurrentTripState {
   isActive: boolean;
@@ -22,7 +23,7 @@ interface CurrentTripState {
 
 const getAddressFromCoords = async (coords: GeolocationCoordinates): Promise<string> => {
     try {
-      const geocoder = new google.maps.Geocoder();
+      const geocoder = new window.google.maps.Geocoder();
       const latlng = {
         lat: coords.latitude,
         lng: coords.longitude,
@@ -80,6 +81,11 @@ export default function DashboardPageClient() {
   const [isProcessing, setIsProcessing] = useState(false);
   const { toast } = useToast();
 
+  const { isLoaded: isMapsLoaded } = useJsApiLoader({
+    id: 'google-map-script-dashboard',
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
+    libraries: ['geocoding']
+  });
 
   const startTrip = () => {
     if (!locationEnabled) {
@@ -191,6 +197,8 @@ export default function DashboardPageClient() {
     return null;
   }, [currentTrip]);
 
+  const isTripControlsDisabled = !locationEnabled || isProcessing || !isMapsLoaded;
+
   return (
     <main className="flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -223,7 +231,7 @@ export default function DashboardPageClient() {
                                 <p className="flex items-center gap-2"><MapPin className="h-4 w-4 text-primary" /> <strong>From:</strong> {currentTrip.startLocation}</p>
                                 <p className="flex items-center gap-2 mt-2"><Clock className="h-4 w-4 text-primary" /> <strong>Started at:</strong> {new Date(currentTrip.startTime).toLocaleTimeString()}</p>
                                 <div className="pt-4 w-full flex justify-center md:justify-start">
-                                <Button onClick={endTrip} size="lg" variant='destructive' disabled={isProcessing}>
+                                <Button onClick={endTrip} size="lg" variant='destructive' disabled={isTripControlsDisabled}>
                                     {isProcessing ? <Loader2 className="animate-spin" /> : <StopCircle />}
                                     <span className="ml-2">End Trip</span>
                                 </Button>
@@ -238,9 +246,10 @@ export default function DashboardPageClient() {
                     <>
                         <p className="text-md text-muted-foreground">
                             {locationEnabled ? 'Click "Start Trip" to begin recording your journey.' : 'Enable location to start a new trip.'}
+                             {!isMapsLoaded && locationEnabled && " (Map services loading...)"}
                         </p>
-                        <Button onClick={startTrip} size="lg" disabled={!locationEnabled || isProcessing} variant={locationEnabled ? 'default' : 'secondary'}>
-                            {isProcessing ? <Loader2 className="animate-spin" /> : <PlayCircle />}
+                        <Button onClick={startTrip} size="lg" disabled={isTripControlsDisabled} variant={locationEnabled ? 'default' : 'secondary'}>
+                            {isProcessing || (!isMapsLoaded && locationEnabled) ? <Loader2 className="animate-spin" /> : <PlayCircle />}
                             <span className="ml-2">Start Trip</span>
                         </Button>
                     </>
