@@ -21,6 +21,7 @@ import { usePathname } from 'next/navigation';
 import { Logo } from '../icons/logo';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Button } from '../ui/button';
+import { ThemeToggle } from '../theme-toggle';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -83,6 +84,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                   {pathname.substring(1) || 'Dashboard'}
               </h1>
             </div>
+            <ThemeToggle />
             <Button variant="ghost" size="icon" asChild>
                 <a href="https://github.com/firebase/studio" target="_blank" rel="noopener noreferrer">
                     <Github className="h-5 w-5" />
