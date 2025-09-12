@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -11,18 +12,46 @@ import {
 import { Button } from '@/components/ui/button';
 import { ShieldCheck, MapPin, Database, Users } from 'lucide-react';
 import useConsent from '@/hooks/use-consent';
+import { useToast } from '@/hooks/use-toast';
 
 export default function ConsentModal() {
   const { giveConsent } = useConsent();
+  const { toast } = useToast();
 
   const handleAccept = () => {
-    navigator.permissions.query({ name: 'geolocation' }).then((result) => {
-      if (result.state === 'granted' || result.state === 'prompt') {
+    // Check if geolocation is supported
+    if (!navigator.geolocation) {
+      toast({
+        title: 'Location Not Supported',
+        description: 'Your browser does not support geolocation.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Request location permission, which will trigger the browser prompt.
+    navigator.geolocation.getCurrentPosition(
+      // Success callback
+      () => {
         giveConsent();
-      } else if (result.state === 'denied') {
-        alert('Location access is denied. Please enable it in your browser settings to use this app.');
+      },
+      // Error callback
+      (error) => {
+        if (error.code === error.PERMISSION_DENIED) {
+          toast({
+            title: 'Location Access Denied',
+            description: 'To use the app, please enable location access in your browser settings.',
+            variant: 'destructive',
+          });
+        } else {
+          toast({
+            title: 'Location Error',
+            description: 'Could not get your location. Please try again.',
+            variant: 'destructive',
+          });
+        }
       }
-    });
+    );
   };
 
   return (
