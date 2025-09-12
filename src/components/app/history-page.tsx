@@ -6,7 +6,6 @@ import type { Trip, TransportMode } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Footprints, Bike, Car, Users, Clock, HelpCircle, MapPin, ArrowRight } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
-import TripMap from './trip-map';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 
@@ -82,9 +81,6 @@ export default function HistoryPageClient() {
                                 </div>
                             </div>
                         </CardContent>
-                        <div className="px-6 pb-6">
-                            <TripMap trip={trip} />
-                        </div>
                     </AccordionContent>
                 </Card>
             </AccordionItem>

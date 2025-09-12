@@ -15,8 +15,6 @@ export type Trip = {
   endTime: number;
   startLocation: string;
   endLocation: string;
-  startCoords: Coordinates;
-  endCoords: Coordinates;
   mode: TransportMode;
   purpose: TripPurpose;
   coTravellers: number;
