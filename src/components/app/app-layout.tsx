@@ -15,16 +15,52 @@ import {
   LayoutDashboard,
   History,
   Github,
+  LogOut,
+  Shield,
 } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { Logo } from '../icons/logo';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Button } from '../ui/button';
 import { ThemeToggle } from '../theme-toggle';
+import useLocalStorage from '@/hooks/use-local-storage';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const [auth, setAuth] = useLocalStorage('auth', { isAuthenticated: false, role: 'user' });
+
+  const handleLogout = () => {
+    setAuth({ isAuthenticated: false, role: null });
+    router.push('/login');
+  };
+
+  const menuItems =
+  auth.role === 'admin'
+    ? [
+        {
+          href: '/admin',
+          icon: <Shield />,
+          label: 'Admin Dashboard',
+          isActive: pathname === '/admin',
+        },
+      ]
+    : [
+        {
+          href: '/dashboard',
+          icon: <LayoutDashboard />,
+          label: 'Dashboard',
+          isActive: pathname === '/dashboard',
+        },
+        {
+          href: '/history',
+          icon: <History />,
+          label: 'Trip History',
+          isActive: pathname === '/history',
+        },
+      ];
+
 
   return (
     <SidebarProvider>
@@ -39,47 +75,35 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </SidebarHeader>
         <SidebarContent>
           <SidebarMenu>
-            <SidebarMenuItem>
-              <Link href="/dashboard" passHref legacyBehavior>
-                <SidebarMenuButton
-                  asChild
-                  isActive={pathname === '/dashboard'}
-                  tooltip="Dashboard"
-                >
-                  <a>
-                    <LayoutDashboard />
-                    Dashboard
-                  </a>
-                </SidebarMenuButton>
-              </Link>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <Link href="/history" passHref legacyBehavior>
-                <SidebarMenuButton
-                  asChild
-                  isActive={pathname === '/history'}
-                  tooltip="Trip History"
-                >
-                  <a>
-                    <History />
-                    Trip History
-                  </a>
-                </SidebarMenuButton>
-              </Link>
-            </SidebarMenuItem>
+            {menuItems.map((item) => (
+               <SidebarMenuItem key={item.href}>
+                  <Link href={item.href} passHref legacyBehavior>
+                    <SidebarMenuButton asChild isActive={item.isActive} tooltip={item.label}>
+                      <a>
+                        {item.icon}
+                        {item.label}
+                      </a>
+                    </SidebarMenuButton>
+                  </Link>
+               </SidebarMenuItem>
+            ))}
           </SidebarMenu>
         </SidebarContent>
-        <SidebarFooter className="p-4">
+        <SidebarFooter className="p-4 space-y-2">
            <div className="flex items-center gap-3">
               <Avatar className="h-9 w-9">
                   <AvatarImage src="https://picsum.photos/seed/user/100/100" alt="User" data-ai-hint="person face" />
-                  <AvatarFallback>U</AvatarFallback>
+                  <AvatarFallback>{auth.role === 'admin' ? 'A' : 'U'}</AvatarFallback>
               </Avatar>
               <div className="flex flex-col">
-                  <span className="text-sm font-medium text-sidebar-foreground">User</span>
-                  <span className="text-xs text-sidebar-foreground/70">user@tripmapper.com</span>
+                  <span className="text-sm font-medium text-sidebar-foreground capitalize">{auth.role}</span>
+                  <span className="text-xs text-sidebar-foreground/70">{auth.role}@tripmapper.com</span>
               </div>
            </div>
+           <Button variant="ghost" className="w-full justify-start text-sidebar-foreground/70" onClick={handleLogout}>
+             <LogOut className="mr-2 h-4 w-4" />
+             Logout
+           </Button>
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
