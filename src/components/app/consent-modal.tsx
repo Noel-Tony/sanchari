@@ -9,7 +9,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { ShieldCheck, MapPin } from 'lucide-react';
+import { ShieldCheck, MapPin, Database, Users } from 'lucide-react';
 import useConsent from '@/hooks/use-consent';
 
 export default function ConsentModal() {
@@ -27,35 +27,42 @@ export default function ConsentModal() {
 
   return (
     <Dialog open={true}>
-      <DialogContent className="sm:max-w-[480px]" onInteractOutside={(e) => e.preventDefault()}>
+      <DialogContent className="sm:max-w-[520px]" onInteractOutside={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-2xl font-headline">
             <ShieldCheck className="h-8 w-8 text-primary" />
-            Your Privacy Matters
+            Welcome to TripMapper
           </DialogTitle>
           <DialogDescription className="pt-2 text-base">
-            To provide you with the best experience, TripMapper needs your consent to collect some data and access your location.
+            To help improve transportation planning, TripMapper collects anonymous trip data. Please review our data practices below.
           </DialogDescription>
         </DialogHeader>
-        <div className="py-4 space-y-4">
+        <div className="py-4 space-y-4 text-sm">
             <h3 className="font-semibold text-lg flex items-center gap-2">
                 <MapPin className="h-5 w-5 text-primary" />
-                Location Access
+                Location & Trip Data
             </h3>
             <p className="text-muted-foreground">
-                We use your device's location to automatically track your trips, including start and end points. Your location data is stored locally on your device and is not shared with us or any third parties.
+                We use your device's location to automatically track your trips, including start/end points, routes, and duration. We also ask you to provide the trip's purpose, transport mode, and number of co-travellers.
             </p>
              <h3 className="font-semibold text-lg flex items-center gap-2">
-                <ShieldCheck className="h-5 w-5 text-primary" />
-                Data Collection
+                <Database className="h-5 w-5 text-primary" />
+                Secure & Anonymous Storage
             </h3>
             <p className="text-muted-foreground">
-                We collect anonymous trip data (such as purpose, mode of transport, and duration) to improve our services and for analytical purposes. All data is anonymized and stored securely.
+                Your trip data is tagged with an anonymized user ID and stored securely on our servers. Your personal information is never shared.
+            </p>
+            <h3 className="font-semibold text-lg flex items-center gap-2">
+                <Users className="h-5 w-5 text-primary" />
+                Contribution to Research
+            </h3>
+            <p className="text-muted-foreground">
+                Anonymous, aggregated data is accessed by planners and researchers (like NATPAC) to analyze travel patterns, model transportation needs, and inform policy decisions for better infrastructure.
             </p>
         </div>
         <DialogFooter>
           <Button onClick={handleAccept} size="lg" className="w-full bg-accent hover:bg-accent/90">
-            Accept and Continue
+            I Accept and Consent to Share Trip Data
           </Button>
         </DialogFooter>
       </DialogContent>
