@@ -7,6 +7,8 @@ import { PlayCircle, StopCircle, Car, Bike, Footprints, Clock, MapPin, Users, He
 import TripFormModal from './trip-form-modal';
 import useLocalStorage from '@/hooks/use-local-storage';
 import type { Trip, TransportMode } from '@/lib/types';
+import { useToast } from '@/hooks/use-toast';
+
 
 interface CurrentTripState {
   isActive: boolean;
@@ -40,11 +42,32 @@ export default function DashboardPageClient() {
   });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [tripDataForModal, setTripDataForModal] = useState<Omit<Trip, 'purpose' | 'coTravellers' | 'id' | 'mode'> | null>(null);
+  const { toast } = useToast();
 
-  const startTrip = () => {
-    const startTime = Date.now();
-    const startLocation = getRandomLocation();
-    setCurrentTrip({ isActive: true, startTime, startLocation });
+
+  const startTrip = async () => {
+    try {
+        const permission = await navigator.permissions.query({ name: 'geolocation' });
+        if (permission.state === 'denied') {
+            toast({
+                title: 'Location Access Denied',
+                description: 'Please enable location access in your browser settings to start a trip.',
+                variant: 'destructive',
+            });
+            return;
+        }
+
+        const startTime = Date.now();
+        const startLocation = getRandomLocation();
+        setCurrentTrip({ isActive: true, startTime, startLocation });
+    } catch (error) {
+        console.error('Error checking location permission:', error);
+        toast({
+            title: 'Error',
+            description: 'Could not check location permissions. Please try again.',
+            variant: 'destructive',
+        });
+    }
   };
 
   const endTrip = () => {

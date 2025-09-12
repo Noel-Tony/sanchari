@@ -5,9 +5,12 @@ import { useRouter } from 'next/navigation';
 import AppLayout from '@/components/app/app-layout';
 import useLocalStorage from '@/hooks/use-local-storage';
 import { Loader2 } from 'lucide-react';
+import ConsentModal from '@/components/app/consent-modal';
+import useConsent from '@/hooks/use-consent';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [auth] = useLocalStorage('auth', { isAuthenticated: false, role: 'user' });
+  const { hasConsented } = useConsent();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
 
@@ -27,6 +30,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <Loader2 className="h-8 w-8 animate-spin" />
       </div>
     );
+  }
+
+  if (!hasConsented) {
+    return <ConsentModal />;
   }
 
   return <AppLayout>{children}</AppLayout>;
