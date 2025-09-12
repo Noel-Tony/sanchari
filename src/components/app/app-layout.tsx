@@ -18,6 +18,7 @@ import {
   LogOut,
   Shield,
   BarChart,
+  HelpCircle,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -65,6 +66,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             icon: <BarChart />,
             label: 'Statistics',
             isActive: pathname === '/stats',
+        },
+        {
+            href: '/help',
+            icon: <HelpCircle />,
+            label: 'Help',
+            isActive: pathname === '/help',
         }
       ];
 
