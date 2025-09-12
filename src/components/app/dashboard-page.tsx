@@ -8,6 +8,8 @@ import TripFormModal from './trip-form-modal';
 import useLocalStorage from '@/hooks/use-local-storage';
 import type { Trip, TransportMode } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 
 
 interface CurrentTripState {
@@ -42,10 +44,19 @@ export default function DashboardPageClient() {
   });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [tripDataForModal, setTripDataForModal] = useState<Omit<Trip, 'purpose' | 'coTravellers' | 'id' | 'mode'> | null>(null);
+  const [locationEnabled, setLocationEnabled] = useState(true);
   const { toast } = useToast();
 
 
   const startTrip = async () => {
+    if (!locationEnabled) {
+        toast({
+            title: 'Location is Disabled',
+            description: 'Please enable the location toggle to start a new trip.',
+            variant: 'destructive',
+        });
+        return;
+    }
     try {
         const permission = await navigator.permissions.query({ name: 'geolocation' });
         if (permission.state === 'denied') {
@@ -121,23 +132,49 @@ export default function DashboardPageClient() {
     <main className="flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <Card className="md:col-span-2 lg:col-span-3">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-2xl font-medium font-headline">
-              {currentTrip.isActive ? 'Trip in Progress' : 'Start a New Trip'}
-            </CardTitle>
-            <Button onClick={currentTrip.isActive ? endTrip : startTrip} size="lg" variant={currentTrip.isActive ? 'destructive' : 'default'} className="bg-accent hover:bg-accent/90">
-              {currentTrip.isActive ? <StopCircle /> : <PlayCircle />}
-              <span className="ml-2">{currentTrip.isActive ? 'End Trip' : 'Start Trip'}</span>
-            </Button>
+          <CardHeader>
+             <div className="flex flex-row items-start justify-between">
+                <CardTitle className="text-2xl font-medium font-headline">
+                {currentTrip.isActive ? 'Trip in Progress' : 'Start a New Trip'}
+                </CardTitle>
+                <div className="flex items-center space-x-2">
+                    <Switch 
+                        id="location-toggle"
+                        checked={locationEnabled}
+                        onCheckedChange={setLocationEnabled}
+                        aria-label="Toggle location tracking"
+                    />
+                    <Label htmlFor="location-toggle" className="text-sm font-medium">
+                        Location
+                    </Label>
+                </div>
+            </div>
           </CardHeader>
           <CardContent>
-            {currentTrip.isActive && currentTrip.startTime && (
-              <div className="text-md text-muted-foreground space-y-2">
-                <p className="flex items-center gap-2"><MapPin className="h-4 w-4 text-primary" /> <strong>From:</strong> {currentTrip.startLocation}</p>
-                <p className="flex items-center gap-2"><Clock className="h-4 w-4 text-primary" /> <strong>Started at:</strong> {new Date(currentTrip.startTime).toLocaleTimeString()}</p>
-              </div>
-            )}
-            {!currentTrip.isActive && <p className="text-md text-muted-foreground">Click "Start Trip" to begin recording your journey.</p>}
+            <div className="flex flex-col items-center gap-4 text-center">
+                 {currentTrip.isActive && currentTrip.startTime ? (
+                    <div className="text-md text-muted-foreground space-y-2 text-left w-full">
+                        <p className="flex items-center gap-2"><MapPin className="h-4 w-4 text-primary" /> <strong>From:</strong> {currentTrip.startLocation}</p>
+                        <p className="flex items-center gap-2"><Clock className="h-4 w-4 text-primary" /> <strong>Started at:</strong> {new Date(currentTrip.startTime).toLocaleTimeString()}</p>
+                        <div className="pt-4 w-full flex justify-center">
+                           <Button onClick={endTrip} size="lg" variant='destructive'>
+                                <StopCircle />
+                                <span className="ml-2">End Trip</span>
+                           </Button>
+                        </div>
+                    </div>
+                ) : (
+                    <>
+                        <p className="text-md text-muted-foreground">
+                            {locationEnabled ? 'Click "Start Trip" to begin recording your journey.' : 'Enable location to start a new trip.'}
+                        </p>
+                        <Button onClick={startTrip} size="lg" disabled={!locationEnabled} variant={locationEnabled ? 'default' : 'secondary'}>
+                            <PlayCircle />
+                            <span className="ml-2">Start Trip</span>
+                        </Button>
+                    </>
+                )}
+            </div>
           </CardContent>
         </Card>
       </div>
