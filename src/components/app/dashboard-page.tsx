@@ -75,12 +75,22 @@ export default function DashboardPageClient() {
     
     const endTime = Date.now();
     const endLocation = getRandomLocation(currentTrip.startLocation);
+    const durationMinutes = (endTime - currentTrip.startTime) / 60000;
+    
+    // Simulate distance: vehicle travels at 30mph, cycling at 10mph, walking at 3mph
+    // This is a rough simulation.
+    const getSimulatedDistance = (durationMins: number) => {
+        // For the sake of the modal, we don't know the mode yet, so we'll pick an average
+        const averageSpeed = 15; // mph
+        return (durationMins / 60) * averageSpeed;
+    }
     
     setTripDataForModal({
       startTime: currentTrip.startTime,
       endTime,
       startLocation: currentTrip.startLocation,
       endLocation,
+      distance: getSimulatedDistance(durationMinutes),
     });
     
     setIsModalOpen(true);
@@ -88,7 +98,16 @@ export default function DashboardPageClient() {
   };
   
   const handleSaveTrip = (newTrip: Omit<Trip, 'id'>) => {
-    setTrips(prevTrips => [...prevTrips, { ...newTrip, id: crypto.randomUUID() }]);
+    // Recalculate distance based on selected mode
+    const durationMinutes = (newTrip.endTime - newTrip.startTime) / 60000;
+    let speed = 15; // Default average
+    if (newTrip.mode === 'vehicle') speed = 30;
+    if (newTrip.mode === 'cycling') speed = 10;
+    if (newTrip.mode === 'walking') speed = 3;
+    const finalDistance = (durationMinutes / 60) * speed;
+
+
+    setTrips(prevTrips => [...prevTrips, { ...newTrip, distance: finalDistance, id: crypto.randomUUID() }]);
     setIsModalOpen(false);
   };
 

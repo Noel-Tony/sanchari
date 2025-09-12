@@ -17,6 +17,7 @@ import {
   Github,
   LogOut,
   Shield,
+  BarChart,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -59,6 +60,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           label: 'Trip History',
           isActive: pathname === '/history',
         },
+        {
+            href: '/stats',
+            icon: <BarChart />,
+            label: 'Statistics',
+            isActive: pathname === '/stats',
+        }
       ];
 
 

@@ -13,4 +13,5 @@ export type Trip = {
   mode: TransportMode;
   purpose: TripPurpose;
   coTravellers: number;
+  distance: number; // in miles
 };
