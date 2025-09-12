@@ -11,7 +11,7 @@ import ConsentModal from '@/components/app/consent-modal';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [auth] = useLocalStorage('auth', { isAuthenticated: false, role: 'user' });
-  const { hasConsented } = useConsent();
+  const { hasConsented, giveConsent } = useConsent();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
 
@@ -34,7 +34,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   if (!hasConsented) {
     return (
       <div className="h-screen w-full bg-background">
-        <ConsentModal />
+        <ConsentModal onConsent={giveConsent} />
       </div>
     );
   }

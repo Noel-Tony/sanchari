@@ -11,11 +11,13 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { ShieldCheck, MapPin, Database, Users } from 'lucide-react';
-import useConsent from '@/hooks/use-consent';
 import { useToast } from '@/hooks/use-toast';
 
-export default function ConsentModal() {
-  const { giveConsent } = useConsent();
+interface ConsentModalProps {
+    onConsent: () => void;
+}
+
+export default function ConsentModal({ onConsent }: ConsentModalProps) {
   const { toast } = useToast();
 
   const handleAccept = () => {
@@ -30,7 +32,7 @@ export default function ConsentModal() {
 
     navigator.geolocation.getCurrentPosition(
       () => {
-        giveConsent();
+        onConsent();
       },
       (error) => {
         if (error.code === error.PERMISSION_DENIED) {
