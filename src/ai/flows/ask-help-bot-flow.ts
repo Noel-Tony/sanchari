@@ -22,6 +22,7 @@ export type AskHelpBotOutput = string;
 const prompt = ai.definePrompt({
   name: 'askHelpBotPrompt',
   input: { schema: AskHelpBotInputSchema },
+  output: { schema: z.string() },
   prompt: `You are a helpful assistant for an application called "TripMapper".
 Your goal is to answer user questions about how to use the application.
 Be friendly and concise.
