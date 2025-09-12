@@ -1,10 +1,17 @@
+
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
+import { dummyTrips } from '@/lib/dummy-data';
 
 function useLocalStorage<T>(key: string, initialValue: T): [T, (value: T | ((val: T) => T)) => void] {
   // Memoize initialValue to prevent re-renders if it's an object/array
-  const stableInitialValue = useMemo(() => initialValue, [key]);
+  const stableInitialValue = useMemo(() => {
+    if (key === 'trips' && Array.isArray(initialValue) && initialValue.length === 0) {
+        return dummyTrips as T;
+    }
+    return initialValue;
+  }, [key, initialValue]);
 
   const [storedValue, setStoredValue] = useState<T>(() => {
     if (typeof window === 'undefined') {
@@ -12,6 +19,7 @@ function useLocalStorage<T>(key: string, initialValue: T): [T, (value: T | ((val
     }
     try {
       const item = window.localStorage.getItem(key);
+      // If item exists, parse it. If not, use the stableInitialValue which might contain dummy data.
       return item ? JSON.parse(item) : stableInitialValue;
     } catch (error) {
       console.error(error);
@@ -36,6 +44,7 @@ function useLocalStorage<T>(key: string, initialValue: T): [T, (value: T | ((val
     if (typeof window !== 'undefined') {
       try {
         const item = window.localStorage.getItem(key);
+        // On mount, if there's an item in localStorage, use it. Otherwise, use the initial value (with dummy data).
         const currentValue = item ? JSON.parse(item) : stableInitialValue;
          setStoredValue(currentValue);
       } catch (error) {
@@ -44,7 +53,7 @@ function useLocalStorage<T>(key: string, initialValue: T): [T, (value: T | ((val
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key]);
+  }, [key, stableInitialValue]);
 
 
   return [storedValue, setValue];
