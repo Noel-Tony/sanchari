@@ -77,7 +77,7 @@ export default function HistoryPageClient() {
                                 </div>
 
                                 <div className="font-bold text-right">
-                                    {trip.distance.toFixed(2)} miles
+                                    {(trip.distance || 0).toFixed(2)} miles
                                 </div>
                             </div>
                         </CardContent>
