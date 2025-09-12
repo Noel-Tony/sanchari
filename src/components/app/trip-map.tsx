@@ -2,7 +2,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { GoogleMap, useJsApiLoader, MarkerF } from '@react-google-maps/api';
+import { GoogleMap, useJsApiLoader, MarkerF, PolylineF } from '@react-google-maps/api';
 import type { Trip } from '@/lib/types';
 import { Loader2 } from 'lucide-react';
 import { useTheme } from 'next-themes';
@@ -88,45 +88,41 @@ const mapStyles: google.maps.MapTypeStyle[] = [
   },
 ];
 
-
-const locationCoordinates: { [key: string]: google.maps.LatLngLiteral } = {
-    'Home': { lat: 34.0522, lng: -118.2437 }, // Los Angeles
-    'Office': { lat: 40.7128, lng: -74.0060 }, // New York
-    'Downtown': { lat: 41.8781, lng: -87.6298 }, // Chicago
-    'Supermarket': { lat: 29.7604, lng: -95.3698 }, // Houston
-    'Gym': { lat: 39.9526, lng: -75.1652 }, // Philadelphia
-    'Park': { lat: 33.4484, lng: -112.0740 }, // Phoenix
-    'Friend\'s House': { lat: 29.4241, lng: -98.4936 } // San Antonio
-};
-
 interface TripMapProps {
   trip: Trip;
 }
 
 export default function TripMap({ trip }: TripMapProps) {
-  const { isLoaded } = useJsApiLoader({
+  const { isLoaded, loadError } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
+    libraries: ['geocoding']
   });
 
   const { resolvedTheme } = useTheme();
-
-  const startCoords = locationCoordinates[trip.startLocation];
-  const endCoords = locationCoordinates[trip.endLocation];
-
-  const center = useMemo(() => {
-    if (startCoords && endCoords) {
-      return {
-        lat: (startCoords.lat + endCoords.lat) / 2,
-        lng: (startCoords.lng + endCoords.lng) / 2,
-      };
+  
+  const bounds = useMemo(() => {
+    if (!trip.startCoords || !trip.endCoords) return undefined;
+    const newBounds = new window.google.maps.LatLngBounds();
+    newBounds.extend(trip.startCoords);
+    if(trip.endLocation) { // Only extend to end if it's a completed trip
+      newBounds.extend(trip.endCoords);
     }
-    return startCoords || endCoords || { lat: 37.7749, lng: -122.4194 };
-  }, [startCoords, endCoords]);
+    return newBounds;
+  }, [trip]);
+
+
+  if (loadError) {
+      return (
+        <div className="flex h-full w-full items-center justify-center rounded-lg bg-destructive/10 text-destructive p-4 text-center">
+            <p>Error loading Google Maps. Please check your API key and network connection.</p>
+        </div>
+      );
+  }
 
   if (!isLoaded) {
     return (
-        <div className="flex h-64 w-full items-center justify-center rounded-lg bg-muted">
+        <div className="flex h-full w-full min-h-[250px] items-center justify-center rounded-lg bg-muted">
             <Loader2 className="h-8 w-8 animate-spin" />
         </div>
     );
@@ -134,15 +130,15 @@ export default function TripMap({ trip }: TripMapProps) {
 
   if (!process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY) {
       return (
-        <div className="flex h-64 w-full items-center justify-center rounded-lg bg-destructive/10 text-destructive">
+        <div className="flex h-full w-full items-center justify-center rounded-lg bg-destructive/10 text-destructive p-4 text-center">
             <p>Google Maps API key is not configured.</p>
         </div>
       );
   }
   
-  if (!startCoords || !endCoords) {
+  if (!trip.startCoords) {
     return (
-        <div className="flex h-64 w-full items-center justify-center rounded-lg bg-muted">
+        <div className="flex h-full w-full items-center justify-center rounded-lg bg-muted p-4 text-center">
             <p>Could not find coordinates for this trip.</p>
         </div>
     );
@@ -151,16 +147,32 @@ export default function TripMap({ trip }: TripMapProps) {
 
   return (
     <GoogleMap
-      mapContainerStyle={{ width: '100%', height: '250px', borderRadius: '0.5rem' }}
-      center={center}
-      zoom={4}
+      mapContainerStyle={{ width: '100%', height: '100%', minHeight: '250px', borderRadius: '0.5rem' }}
+      center={trip.startCoords}
+      zoom={15}
+      bounds={bounds}
+      onLoad={(map) => {
+        if (bounds) {
+          map.fitBounds(bounds, 50);
+        }
+      }}
       options={{
         disableDefaultUI: true,
         styles: resolvedTheme === 'dark' ? mapStyles : undefined,
       }}
     >
-      <MarkerF position={startCoords} label="A" />
-      <MarkerF position={endCoords} label="B" />
+      <MarkerF position={trip.startCoords} label="A" />
+      {trip.endLocation && <MarkerF position={trip.endCoords} label="B" />}
+      {trip.endLocation && (
+        <PolylineF
+            path={[trip.startCoords, trip.endCoords]}
+            options={{
+                strokeColor: '#FF0000',
+                strokeOpacity: 0.8,
+                strokeWeight: 2,
+            }}
+        />
+      )}
     </GoogleMap>
   );
 }

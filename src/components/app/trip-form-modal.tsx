@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -89,7 +90,7 @@ export default function TripFormModal({ isOpen, onClose, onSave, tripData, allTr
         <DialogHeader>
           <DialogTitle>Confirm Trip Details</DialogTitle>
           <DialogDescription>
-            We detected a trip. Please confirm the details below.
+            Your trip from {tripData.startLocation} to {tripData.endLocation} ({tripData.distance.toFixed(2)} miles) has ended. Please confirm the details.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>

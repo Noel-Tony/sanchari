@@ -1,3 +1,4 @@
+
 'use client';
 
 import useLocalStorage from '@/hooks/use-local-storage';
@@ -28,7 +29,11 @@ export default function AdminDashboardClient() {
         'Start Time', 
         'End Time', 
         'Start Location', 
-        'End Location', 
+        'End Location',
+        'Start Coords (Lat)',
+        'Start Coords (Lng)',
+        'End Coords (Lat)',
+        'End Coords (Lng)',
         'Purpose', 
         'Mode', 
         'Duration (mins)', 
@@ -42,6 +47,10 @@ export default function AdminDashboardClient() {
       new Date(trip.endTime).toISOString(),
       `"${trip.startLocation}"`,
       `"${trip.endLocation}"`,
+      trip.startCoords.lat,
+      trip.startCoords.lng,
+      trip.endCoords.lat,
+      trip.endCoords.lng,
       trip.purpose,
       trip.mode,
       Math.round((trip.endTime - trip.startTime) / 60000),

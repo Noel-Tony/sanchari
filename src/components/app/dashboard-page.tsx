@@ -1,29 +1,60 @@
+
 'use client';
 
 import { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PlayCircle, StopCircle, Car, Bike, Footprints, Clock, MapPin, Users, HelpCircle } from 'lucide-react';
+import { PlayCircle, StopCircle, Car, Bike, Footprints, Clock, MapPin, Users, HelpCircle, Loader2 } from 'lucide-react';
 import TripFormModal from './trip-form-modal';
 import useLocalStorage from '@/hooks/use-local-storage';
-import type { Trip, TransportMode } from '@/lib/types';
+import type { Trip, TransportMode, Coordinates } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-
+import TripMap from './trip-map';
 
 interface CurrentTripState {
   isActive: boolean;
   startTime: number | null;
   startLocation: string | null;
+  startCoords: Coordinates | null;
 }
 
-const simulatedLocations = ['Home', 'Office', 'Downtown', 'Supermarket', 'Gym', 'Park', 'Friend\'s House'];
-
-const getRandomLocation = (exclude?: string | null): string => {
-  const availableLocations = simulatedLocations.filter(loc => loc !== exclude);
-  return availableLocations[Math.floor(Math.random() * availableLocations.length)];
+const getAddressFromCoords = async (coords: GeolocationCoordinates): Promise<string> => {
+    try {
+      const geocoder = new google.maps.Geocoder();
+      const latlng = {
+        lat: coords.latitude,
+        lng: coords.longitude,
+      };
+      const response = await geocoder.geocode({ location: latlng });
+      if (response.results[0]) {
+        return response.results[0].formatted_address;
+      }
+      return 'Unknown Location';
+    } catch (error) {
+      console.error('Error in reverse geocoding:', error);
+      return 'Unknown Location';
+    }
 };
+
+const haversineDistance = (coords1: Coordinates, coords2: Coordinates): number => {
+    const toRad = (x: number) => (x * Math.PI) / 180;
+    const R = 3959; // Earth's radius in miles
+
+    const dLat = toRad(coords2.lat - coords1.lat);
+    const dLon = toRad(coords2.lng - coords1.lng);
+    const lat1 = toRad(coords1.lat);
+    const lat2 = toRad(coords2.lat);
+
+    const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    return R * c;
+};
+
 
 const TransportIcon = ({ mode, className }: { mode: TransportMode, className?: string }) => {
   const props = { className: className || 'h-5 w-5' };
@@ -41,14 +72,16 @@ export default function DashboardPageClient() {
     isActive: false,
     startTime: null,
     startLocation: null,
+    startCoords: null,
   });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [tripDataForModal, setTripDataForModal] = useState<Omit<Trip, 'purpose' | 'coTravellers' | 'id' | 'mode'> | null>(null);
   const [locationEnabled, setLocationEnabled] = useState(true);
+  const [isProcessing, setIsProcessing] = useState(false);
   const { toast } = useToast();
 
 
-  const startTrip = async () => {
+  const startTrip = () => {
     if (!locationEnabled) {
         toast({
             title: 'Location is Disabled',
@@ -57,68 +90,79 @@ export default function DashboardPageClient() {
         });
         return;
     }
-    try {
-        const permission = await navigator.permissions.query({ name: 'geolocation' });
-        if (permission.state === 'denied') {
+    
+    if (!navigator.geolocation) {
+        toast({ title: 'Geolocation not supported', variant: 'destructive' });
+        return;
+    }
+    
+    setIsProcessing(true);
+    navigator.geolocation.getCurrentPosition(
+        async (position) => {
+            const { latitude, longitude } = position.coords;
+            const startCoords = { lat: latitude, lng: longitude };
+            const startLocation = await getAddressFromCoords(position.coords);
+
+            setCurrentTrip({
+                isActive: true,
+                startTime: Date.now(),
+                startLocation,
+                startCoords,
+            });
+            setIsProcessing(false);
+        },
+        (error) => {
+            console.error('Error getting location:', error);
             toast({
-                title: 'Location Access Denied',
-                description: 'Please enable location access in your browser settings to start a trip.',
+                title: 'Location Error',
+                description: 'Could not get your location. Please check browser settings.',
                 variant: 'destructive',
             });
-            return;
+            setIsProcessing(false);
         }
-
-        const startTime = Date.now();
-        const startLocation = getRandomLocation();
-        setCurrentTrip({ isActive: true, startTime, startLocation });
-    } catch (error) {
-        console.error('Error checking location permission:', error);
-        toast({
-            title: 'Error',
-            description: 'Could not check location permissions. Please try again.',
-            variant: 'destructive',
-        });
-    }
+    );
   };
 
   const endTrip = () => {
-    if (!currentTrip.startTime || !currentTrip.startLocation) return;
+    if (!currentTrip.startTime || !currentTrip.startLocation || !currentTrip.startCoords) return;
     
-    const endTime = Date.now();
-    const endLocation = getRandomLocation(currentTrip.startLocation);
-    const durationMinutes = (endTime - currentTrip.startTime) / 60000;
-    
-    // Simulate distance: vehicle travels at 30mph, cycling at 10mph, walking at 3mph
-    // This is a rough simulation.
-    const getSimulatedDistance = (durationMins: number) => {
-        // For the sake of the modal, we don't know the mode yet, so we'll pick an average
-        const averageSpeed = 15; // mph
-        return (durationMins / 60) * averageSpeed;
-    }
-    
-    setTripDataForModal({
-      startTime: currentTrip.startTime,
-      endTime,
-      startLocation: currentTrip.startLocation,
-      endLocation,
-      distance: getSimulatedDistance(durationMinutes),
-    });
-    
-    setIsModalOpen(true);
-    setCurrentTrip({ isActive: false, startTime: null, startLocation: null });
+    setIsProcessing(true);
+    navigator.geolocation.getCurrentPosition(
+        async (position) => {
+            const { latitude, longitude } = position.coords;
+            const endCoords = { lat: latitude, lng: longitude };
+            const endLocation = await getAddressFromCoords(position.coords);
+
+            const distance = haversineDistance(currentTrip.startCoords!, endCoords);
+
+            setTripDataForModal({
+                startTime: currentTrip.startTime!,
+                endTime: Date.now(),
+                startLocation: currentTrip.startLocation!,
+                endLocation,
+                startCoords: currentTrip.startCoords!,
+                endCoords,
+                distance,
+            });
+
+            setIsModalOpen(true);
+            setCurrentTrip({ isActive: false, startTime: null, startLocation: null, startCoords: null });
+            setIsProcessing(false);
+        },
+        (error) => {
+            console.error('Error getting location:', error);
+            toast({
+                title: 'Location Error',
+                description: 'Could not get your location to end the trip.',
+                variant: 'destructive',
+            });
+            setIsProcessing(false);
+        }
+    );
   };
   
   const handleSaveTrip = (newTrip: Omit<Trip, 'id'>) => {
-    // Recalculate distance based on selected mode
-    const durationMinutes = (newTrip.endTime - newTrip.startTime) / 60000;
-    let speed = 15; // Default average
-    if (newTrip.mode === 'vehicle') speed = 30;
-    if (newTrip.mode === 'cycling') speed = 10;
-    if (newTrip.mode === 'walking') speed = 3;
-    const finalDistance = (durationMinutes / 60) * speed;
-
-
-    setTrips(prevTrips => [...prevTrips, { ...newTrip, distance: finalDistance, id: crypto.randomUUID() }]);
+    setTrips(prevTrips => [...prevTrips, { ...newTrip, id: crypto.randomUUID() }]);
     setIsModalOpen(false);
   };
 
@@ -127,6 +171,25 @@ export default function DashboardPageClient() {
     today.setHours(0, 0, 0, 0);
     return trips.filter(trip => trip.startTime >= today.getTime());
   }, [trips]);
+  
+  const activeTripForMap = useMemo(() => {
+    if (currentTrip.isActive && currentTrip.startCoords) {
+        return {
+            id: 'active-trip',
+            startTime: currentTrip.startTime!,
+            endTime: Date.now(),
+            startLocation: currentTrip.startLocation!,
+            endLocation: '',
+            startCoords: currentTrip.startCoords,
+            endCoords: currentTrip.startCoords, // Only show start marker
+            mode: 'vehicle',
+            purpose: 'leisure',
+            coTravellers: 0,
+            distance: 0,
+        } as Trip;
+    }
+    return null;
+  }, [currentTrip]);
 
   return (
     <main className="flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
@@ -143,6 +206,7 @@ export default function DashboardPageClient() {
                         checked={locationEnabled}
                         onCheckedChange={setLocationEnabled}
                         aria-label="Toggle location tracking"
+                        disabled={isProcessing || currentTrip.isActive}
                     />
                     <Label htmlFor="location-toggle" className="text-sm font-medium">
                         Location
@@ -154,13 +218,20 @@ export default function DashboardPageClient() {
             <div className="flex flex-col items-center gap-4 text-center">
                  {currentTrip.isActive && currentTrip.startTime ? (
                     <div className="text-md text-muted-foreground space-y-2 text-left w-full">
-                        <p className="flex items-center gap-2"><MapPin className="h-4 w-4 text-primary" /> <strong>From:</strong> {currentTrip.startLocation}</p>
-                        <p className="flex items-center gap-2"><Clock className="h-4 w-4 text-primary" /> <strong>Started at:</strong> {new Date(currentTrip.startTime).toLocaleTimeString()}</p>
-                        <div className="pt-4 w-full flex justify-center">
-                           <Button onClick={endTrip} size="lg" variant='destructive'>
-                                <StopCircle />
-                                <span className="ml-2">End Trip</span>
-                           </Button>
+                        <div className="grid md:grid-cols-2 gap-4">
+                            <div>
+                                <p className="flex items-center gap-2"><MapPin className="h-4 w-4 text-primary" /> <strong>From:</strong> {currentTrip.startLocation}</p>
+                                <p className="flex items-center gap-2 mt-2"><Clock className="h-4 w-4 text-primary" /> <strong>Started at:</strong> {new Date(currentTrip.startTime).toLocaleTimeString()}</p>
+                                <div className="pt-4 w-full flex justify-center md:justify-start">
+                                <Button onClick={endTrip} size="lg" variant='destructive' disabled={isProcessing}>
+                                    {isProcessing ? <Loader2 className="animate-spin" /> : <StopCircle />}
+                                    <span className="ml-2">End Trip</span>
+                                </Button>
+                                </div>
+                            </div>
+                            <div className="rounded-lg overflow-hidden">
+                                {activeTripForMap && <TripMap trip={activeTripForMap} />}
+                            </div>
                         </div>
                     </div>
                 ) : (
@@ -168,8 +239,8 @@ export default function DashboardPageClient() {
                         <p className="text-md text-muted-foreground">
                             {locationEnabled ? 'Click "Start Trip" to begin recording your journey.' : 'Enable location to start a new trip.'}
                         </p>
-                        <Button onClick={startTrip} size="lg" disabled={!locationEnabled} variant={locationEnabled ? 'default' : 'secondary'}>
-                            <PlayCircle />
+                        <Button onClick={startTrip} size="lg" disabled={!locationEnabled || isProcessing} variant={locationEnabled ? 'default' : 'secondary'}>
+                            {isProcessing ? <Loader2 className="animate-spin" /> : <PlayCircle />}
                             <span className="ml-2">Start Trip</span>
                         </Button>
                     </>
@@ -187,7 +258,7 @@ export default function DashboardPageClient() {
               <Card key={trip.id}>
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
-                    <span>{trip.startLocation} to {trip.endLocation}</span>
+                    <span className="text-base">{trip.startLocation} to {trip.endLocation}</span>
                     <TransportIcon mode={trip.mode} className="h-6 w-6 text-primary" />
                   </CardTitle>
                 </CardHeader>

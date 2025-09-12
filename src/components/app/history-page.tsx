@@ -36,15 +36,15 @@ export default function HistoryPageClient() {
           {sortedTrips.map(trip => (
             <AccordionItem value={trip.id} key={trip.id} className="border-none">
                 <Card className="w-full">
-                    <AccordionTrigger className="w-full text-left hover:no-underline p-0">
+                    <AccordionTrigger className="w-full text-left hover:no-underline p-0 [&>svg]:mx-6">
                         <CardHeader className="w-full">
                             <div className="flex justify-between items-start">
                             <div>
-                                <CardTitle className="text-xl font-headline flex items-center gap-2">
+                                <CardTitle className="text-xl font-headline flex items-center flex-wrap gap-2">
                                     <MapPin className="h-5 w-5 text-muted-foreground"/> 
-                                    {trip.startLocation} 
+                                    <span className="truncate max-w-xs">{trip.startLocation}</span>
                                     <ArrowRight className="h-4 w-4 text-muted-foreground"/> 
-                                    {trip.endLocation}
+                                    <span className="truncate max-w-xs">{trip.endLocation}</span>
                                 </CardTitle>
                                 <CardDescription>
                                 {new Date(trip.startTime).toLocaleDateString()}
@@ -54,33 +54,39 @@ export default function HistoryPageClient() {
                             </div>
                         </CardHeader>
                     </AccordionTrigger>
-                    <CardContent>
-                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-sm">
-                            <div className="flex items-center gap-4">
-                                <div className="text-center">
-                                    <p className="font-semibold capitalize text-lg text-primary">{trip.purpose}</p>
-                                    <p className="text-xs text-muted-foreground">Purpose</p>
+                    <AccordionContent>
+                        <CardContent>
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-sm">
+                                <div className="flex items-center gap-4">
+                                    <div className="text-center">
+                                        <p className="font-semibold capitalize text-lg text-primary">{trip.purpose}</p>
+                                        <p className="text-xs text-muted-foreground">Purpose</p>
+                                    </div>
+                                    <Separator orientation="vertical" className="h-10" />
+                                    <div className="flex items-center gap-2 text-muted-foreground">
+                                        <Clock className="h-4 w-4" />
+                                        <span>
+                                            {new Date(trip.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} -{' '}
+                                            {new Date(trip.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                        </span>
+                                    </div>
+                                    <Separator orientation="vertical" className="h-10 hidden md:block" />
+                                     <div className="flex items-center gap-2 text-muted-foreground hidden md:flex">
+                                        <Users className="h-4 w-4" />
+                                        <span>{trip.coTravellers} co-traveller{trip.coTravellers !== 1 ? 's' : ''}</span>
+                                    </div>
                                 </div>
-                                <Separator orientation="vertical" className="h-10" />
-                                <div className="flex items-center gap-2 text-muted-foreground">
-                                    <Clock className="h-4 w-4" />
-                                    <span>
-                                        {new Date(trip.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} -{' '}
-                                        {new Date(trip.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                    </span>
-                                </div>
-                            </div>
 
-                            <div className="flex items-center gap-2 text-muted-foreground">
-                                <Users className="h-4 w-4" />
-                                <span>{trip.coTravellers} co-traveller{trip.coTravellers !== 1 ? 's' : ''}</span>
+                                <div className="font-bold text-right">
+                                    {trip.distance.toFixed(2)} miles
+                                </div>
                             </div>
+                        </CardContent>
+                        <div className="px-6 pb-6">
+                            <TripMap trip={trip} />
                         </div>
-                    </CardContent>
+                    </AccordionContent>
                 </Card>
-                <AccordionContent>
-                    <TripMap trip={trip} />
-                </AccordionContent>
             </AccordionItem>
           ))}
         </Accordion>

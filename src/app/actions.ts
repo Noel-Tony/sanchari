@@ -1,3 +1,4 @@
+
 'use server';
 
 import { suggestTripPurpose } from '@/ai/flows/suggest-trip-purpose';
@@ -11,7 +12,7 @@ export async function getAiTripPurposeSuggestion(
 ): Promise<{ suggestedPurpose: string; confidence: number }> {
   try {
     const response = await suggestTripPurpose({
-      tripHistory: JSON.stringify(tripHistory.slice(-5)), // Send recent history
+      tripHistory: JSON.stringify(tripHistory.slice(-5).map(t => ({...t, startCoords: undefined, endCoords: undefined}))), // Send recent history, remove coords
       currentLocation: JSON.stringify({ name: currentLocation }),
     });
 
