@@ -6,12 +6,11 @@ import { useRouter } from 'next/navigation';
 import AppLayout from '@/components/app/app-layout';
 import useLocalStorage from '@/hooks/use-local-storage';
 import { Loader2 } from 'lucide-react';
-import useConsent from '@/hooks/use-consent';
 import ConsentModal from '@/components/app/consent-modal';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [auth] = useLocalStorage('auth', { isAuthenticated: false, role: 'user' });
-  const { hasConsented, setHasConsented } = useConsent();
+  const [hasConsented, setHasConsented] = useLocalStorage('user-consent', false);
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
 
