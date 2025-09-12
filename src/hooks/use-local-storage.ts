@@ -1,22 +1,23 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
 function useLocalStorage<T>(key: string, initialValue: T): [T, (value: T | ((val: T) => T)) => void] {
-  const [storedValue, setStoredValue] = useState<T>(initialValue);
+  // Memoize initialValue to prevent re-renders if it's an object/array
+  const stableInitialValue = useMemo(() => initialValue, [key]);
 
-  useEffect(() => {
+  const [storedValue, setStoredValue] = useState<T>(() => {
     if (typeof window === 'undefined') {
-      return;
+      return stableInitialValue;
     }
     try {
       const item = window.localStorage.getItem(key);
-      setStoredValue(item ? JSON.parse(item) : initialValue);
+      return item ? JSON.parse(item) : stableInitialValue;
     } catch (error) {
       console.error(error);
-      setStoredValue(initialValue);
+      return stableInitialValue;
     }
-  }, [key, initialValue]);
+  });
 
   const setValue = (value: T | ((val: T) => T)) => {
     try {
@@ -29,6 +30,22 @@ function useLocalStorage<T>(key: string, initialValue: T): [T, (value: T | ((val
       console.error(error);
     }
   };
+
+  // This effect will only run if the key changes, not the initialValue object.
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const item = window.localStorage.getItem(key);
+        const currentValue = item ? JSON.parse(item) : stableInitialValue;
+         setStoredValue(currentValue);
+      } catch (error) {
+        console.error(error);
+        setStoredValue(stableInitialValue);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key]);
+
 
   return [storedValue, setValue];
 }
