@@ -19,7 +19,6 @@ export default function ConsentModal() {
   const { toast } = useToast();
 
   const handleAccept = () => {
-    // Check if geolocation is supported
     if (!navigator.geolocation) {
       toast({
         title: 'Location Not Supported',
@@ -29,13 +28,10 @@ export default function ConsentModal() {
       return;
     }
 
-    // Request location permission, which will trigger the browser prompt.
     navigator.geolocation.getCurrentPosition(
-      // Success callback: Permission granted
       () => {
         giveConsent();
       },
-      // Error callback: Permission denied or other error
       (error) => {
         if (error.code === error.PERMISSION_DENIED) {
           toast({

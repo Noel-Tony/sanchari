@@ -32,7 +32,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   }
 
   if (!hasConsented) {
-    return <ConsentModal />;
+    return (
+      <div className="h-screen w-full bg-background">
+        <ConsentModal />
+      </div>
+    );
   }
 
   return <AppLayout>{children}</AppLayout>;
