@@ -31,11 +31,11 @@ export default function ConsentModal() {
 
     // Request location permission, which will trigger the browser prompt.
     navigator.geolocation.getCurrentPosition(
-      // Success callback
+      // Success callback: Permission granted
       () => {
         giveConsent();
       },
-      // Error callback
+      // Error callback: Permission denied or other error
       (error) => {
         if (error.code === error.PERMISSION_DENIED) {
           toast({
@@ -63,7 +63,7 @@ export default function ConsentModal() {
             Welcome to TripMapper
           </DialogTitle>
           <DialogDescription className="pt-2 text-base">
-            To help improve transportation planning, TripMapper collects anonymous trip data. Please review our data practices below.
+            To help improve transportation planning, TripMapper collects anonymous trip data. Please review our data practices and grant location access to continue.
           </DialogDescription>
         </DialogHeader>
         <div className="py-4 space-y-4 text-sm">
