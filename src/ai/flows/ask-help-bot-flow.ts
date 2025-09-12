@@ -13,17 +13,16 @@ import { z } from 'genkit';
 
 const AskHelpBotInputSchema = z.object({
   history: z.string().describe('The chat history as a string.'),
-  question: z.string().describe('The user\'s current question.'),
+  question: z.string().describe("The user's current question."),
 });
 export type AskHelpBotInput = z.infer<typeof AskHelpBotInputSchema>;
 
 export type AskHelpBotOutput = string;
 
-export async function askHelpBotFlow(input: AskHelpBotInput): Promise<AskHelpBotOutput> {
-  const prompt = ai.definePrompt({
-    name: 'askHelpBotPrompt',
-    input: { schema: AskHelpBotInputSchema },
-    prompt: `You are a helpful assistant for an application called "TripMapper".
+const prompt = ai.definePrompt({
+  name: 'askHelpBotPrompt',
+  input: { schema: AskHelpBotInputSchema },
+  prompt: `You are a helpful assistant for an application called "TripMapper".
 Your goal is to answer user questions about how to use the application.
 Be friendly and concise.
 
@@ -45,8 +44,21 @@ Chat History:
 User Question:
 {{{question}}}
 `,
-  });
+});
 
-  const { output } = await prompt(input);
-  return output!;
+const askHelpBotAIFlow = ai.defineFlow(
+  {
+    name: 'askHelpBotAIFlow',
+    inputSchema: AskHelpBotInputSchema,
+    outputSchema: z.string(),
+  },
+  async input => {
+    const { output } = await prompt(input);
+    return output!;
+  }
+);
+
+
+export async function askHelpBotFlow(input: AskHelpBotInput): Promise<AskHelpBotOutput> {
+  return await askHelpBotAIFlow(input);
 }
