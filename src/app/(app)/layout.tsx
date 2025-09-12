@@ -7,6 +7,7 @@ import AppLayout from '@/components/app/app-layout';
 import useLocalStorage from '@/hooks/use-local-storage';
 import { Loader2 } from 'lucide-react';
 import useConsent from '@/hooks/use-consent';
+import ConsentModal from '@/components/app/consent-modal';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [auth] = useLocalStorage('auth', { isAuthenticated: false, role: 'user' });
@@ -15,24 +16,23 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!hasConsented) {
-      // The root layout will show the consent modal.
-      // We can just show a loader here until consent is given.
-      return;
-    }
     if (!auth.isAuthenticated || auth.role !== 'user') {
       router.replace('/login');
     } else {
       setIsLoading(false);
     }
-  }, [auth, router, hasConsented]);
+  }, [auth, router]);
 
-  if (isLoading || !hasConsented) {
+  if (isLoading) {
     return (
       <div className="flex h-screen items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />
       </div>
     );
+  }
+
+  if (!hasConsented) {
+    return <ConsentModal />;
   }
 
   return <AppLayout>{children}</AppLayout>;
