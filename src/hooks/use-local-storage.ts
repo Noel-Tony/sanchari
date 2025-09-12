@@ -1,29 +1,19 @@
 
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
-import { dummyTrips } from '@/lib/dummy-data';
+import { useState, useEffect } from 'react';
 
 function useLocalStorage<T>(key: string, initialValue: T): [T, (value: T | ((val: T) => T)) => void] {
-  // Memoize initialValue to prevent re-renders if it's an object/array
-  const stableInitialValue = useMemo(() => {
-    if (key === 'trips' && Array.isArray(initialValue) && initialValue.length === 0) {
-        return dummyTrips as T;
-    }
-    return initialValue;
-  }, [key, initialValue]);
-
   const [storedValue, setStoredValue] = useState<T>(() => {
     if (typeof window === 'undefined') {
-      return stableInitialValue;
+      return initialValue;
     }
     try {
       const item = window.localStorage.getItem(key);
-      // If item exists, parse it. If not, use the stableInitialValue which might contain dummy data.
-      return item ? JSON.parse(item) : stableInitialValue;
+      return item ? JSON.parse(item) : initialValue;
     } catch (error) {
       console.error(error);
-      return stableInitialValue;
+      return initialValue;
     }
   });
 
@@ -39,21 +29,19 @@ function useLocalStorage<T>(key: string, initialValue: T): [T, (value: T | ((val
     }
   };
 
-  // This effect will only run if the key changes, not the initialValue object.
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      try {
-        const item = window.localStorage.getItem(key);
-        // On mount, if there's an item in localStorage, use it. Otherwise, use the initial value (with dummy data).
-        const currentValue = item ? JSON.parse(item) : stableInitialValue;
-         setStoredValue(currentValue);
-      } catch (error) {
-        console.error(error);
-        setStoredValue(stableInitialValue);
-      }
+        try {
+            const item = window.localStorage.getItem(key);
+            if (item) {
+                setStoredValue(JSON.parse(item));
+            }
+        } catch (error) {
+            console.error(error);
+        }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key, stableInitialValue]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key]);
 
 
   return [storedValue, setValue];
