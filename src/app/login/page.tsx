@@ -19,13 +19,6 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -119,17 +112,24 @@ export default function LoginPage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Role</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a role" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="user">User</SelectItem>
-                        <SelectItem value="admin">Admin</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <FormControl>
+                       <div className="grid grid-cols-2 gap-2">
+                        <Button
+                          type="button"
+                          variant={field.value === 'user' ? 'default' : 'outline'}
+                          onClick={() => field.onChange('user')}
+                        >
+                          User
+                        </Button>
+                        <Button
+                           type="button"
+                           variant={field.value === 'admin' ? 'default' : 'outline'}
+                           onClick={() => field.onChange('admin')}
+                        >
+                          Admin
+                        </Button>
+                      </div>
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
