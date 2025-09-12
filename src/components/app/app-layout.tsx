@@ -1,3 +1,4 @@
+
 'use client';
 import {
   Sidebar,
@@ -45,6 +46,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           icon: <Shield />,
           label: 'Admin Dashboard',
           isActive: pathname === '/admin',
+        },
+        {
+          href: '/admin/stats',
+          icon: <BarChart />,
+          label: 'Statistics',
+          isActive: pathname === '/admin/stats',
         },
       ]
     : [
@@ -118,7 +125,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             <SidebarTrigger className="md:hidden" />
             <div className="flex-1">
               <h1 className="text-lg font-semibold md:text-2xl font-headline capitalize">
-                  {pathname.substring(1) || 'Dashboard'}
+                  {pathname.split('/').pop() || 'Dashboard'}
               </h1>
             </div>
             <ThemeToggle />
