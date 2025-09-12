@@ -36,22 +36,24 @@ export default function HistoryPageClient() {
           {sortedTrips.map(trip => (
             <AccordionItem value={trip.id} key={trip.id} className="border-none">
                 <Card className="w-full">
-                    <CardHeader>
-                        <div className="flex justify-between items-start">
-                        <div>
-                            <CardTitle className="text-xl font-headline flex items-center gap-2">
-                                <MapPin className="h-5 w-5 text-muted-foreground"/> 
-                                {trip.startLocation} 
-                                <ArrowRight className="h-4 w-4 text-muted-foreground"/> 
-                                {trip.endLocation}
-                            </CardTitle>
-                            <CardDescription>
-                            {new Date(trip.startTime).toLocaleDateString()}
-                            </CardDescription>
-                        </div>
-                        <TransportIcon mode={trip.mode} />
-                        </div>
-                    </CardHeader>
+                    <AccordionTrigger className="w-full text-left hover:no-underline p-0">
+                        <CardHeader className="w-full">
+                            <div className="flex justify-between items-start">
+                            <div>
+                                <CardTitle className="text-xl font-headline flex items-center gap-2">
+                                    <MapPin className="h-5 w-5 text-muted-foreground"/> 
+                                    {trip.startLocation} 
+                                    <ArrowRight className="h-4 w-4 text-muted-foreground"/> 
+                                    {trip.endLocation}
+                                </CardTitle>
+                                <CardDescription>
+                                {new Date(trip.startTime).toLocaleDateString()}
+                                </CardDescription>
+                            </div>
+                            <TransportIcon mode={trip.mode} />
+                            </div>
+                        </CardHeader>
+                    </AccordionTrigger>
                     <CardContent>
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-sm">
                             <div className="flex items-center gap-4">
@@ -74,9 +76,6 @@ export default function HistoryPageClient() {
                                 <span>{trip.coTravellers} co-traveller{trip.coTravellers !== 1 ? 's' : ''}</span>
                             </div>
                         </div>
-                         <AccordionTrigger className="w-fit text-sm text-primary hover:no-underline">
-                            Show Map
-                        </AccordionTrigger>
                     </CardContent>
                 </Card>
                 <AccordionContent>
