@@ -38,12 +38,47 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
+type Language = 'English' | 'Malayalam' | 'Hindi';
+
+const translations: Record<string, Record<Language, string>> = {
+  'Admin Dashboard': {
+    English: 'Admin Dashboard',
+    Malayalam: 'അഡ്മിൻ ഡാഷ്ബോർഡ്',
+    Hindi: 'एडमिन डैशबोर्ड',
+  },
+  Statistics: {
+    English: 'Statistics',
+    Malayalam: 'സ്ഥിതിവിവരക്കണക്കുകൾ',
+    Hindi: 'आंकड़े',
+  },
+  Dashboard: {
+    English: 'Dashboard',
+    Malayalam: 'ഡാഷ്ബോർഡ്',
+    Hindi: 'डैशबोर्ड',
+  },
+  'Trip History': {
+    English: 'Trip History',
+    Malayalam: 'യാത്രയുടെ ചരിത്രം',
+    Hindi: 'यात्रा इतिहास',
+  },
+  Logout: {
+    English: 'Logout',
+    Malayalam: 'ലോഗൗട്ട്',
+    Hindi: 'लॉग आउट',
+  },
+};
+
+
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const [auth, setAuth] = useLocalStorage('auth', { isAuthenticated: false, role: 'user' });
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
-  const [language, setLanguage] = useState('English');
+  const [language, setLanguage] = useState<Language>('English');
+
+  const t = (key: string) => {
+    return translations[key]?.[language] || key;
+  };
 
   const handleLogout = () => {
     setAuth({ isAuthenticated: false, role: null });
@@ -104,10 +139,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             {menuItems.map((item) => (
                <SidebarMenuItem key={item.href}>
                   <Link href={item.href} passHref>
-                    <SidebarMenuButton asChild isActive={item.isActive} tooltip={item.label}>
+                    <SidebarMenuButton asChild isActive={item.isActive} tooltip={t(item.label)}>
                       <span>
                         {item.icon}
-                        {item.label}
+                        {t(item.label)}
                       </span>
                     </SidebarMenuButton>
                   </Link>
@@ -128,7 +163,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
            </div>
            <Button variant="ghost" className="w-full justify-start text-sidebar-foreground/70" onClick={handleLogout}>
              <LogOut className="mr-2 h-4 w-4" />
-             Logout
+             {t('Logout')}
            </Button>
         </SidebarFooter>
       </Sidebar>
@@ -137,7 +172,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             <SidebarTrigger className="md:hidden" />
             <div className="flex-1">
               <h1 className="text-lg font-semibold md:text-2xl font-headline capitalize">
-                  {pathname.split('/').pop() || 'Dashboard'}
+                  {t(pathname.split('/').pop()?.replace('-', ' ') || 'Dashboard')}
               </h1>
             </div>
             <DropdownMenu>
