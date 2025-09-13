@@ -110,13 +110,12 @@ export default function AdminStatsPageClient() {
 
 
   const TransportIcon = ({ mode }: { mode: string }) => {
-    const props = { className: 'h-6 w-6 text-muted-foreground' };
     const lowerCaseMode = mode.toLowerCase();
-    if (lowerCaseMode.includes('car')) return <Car {...props} />;
-    if (lowerCaseMode.includes('bus')) return <Bus {...props} />;
-    if (lowerCaseMode.includes('bike')) return <Bike {...props} />;
-    if (lowerCaseMode.includes('walk')) return <Footprints {...props} />;
-    return <Car {...props} />;
+    if (lowerCaseMode.includes('car')) return <Car className="h-6 w-6 text-red-500" />;
+    if (lowerCaseMode.includes('public transport')) return <Bus className="h-6 w-6 text-blue-500" />;
+    if (lowerCaseMode.includes('bike')) return <Bike className="h-6 w-6 text-green-500" />;
+    if (lowerCaseMode.includes('walk')) return <Footprints className="h-6 w-6 text-yellow-500" />;
+    return <Car className="h-6 w-6 text-gray-500" />;
   };
 
 
@@ -133,7 +132,7 @@ export default function AdminStatsPageClient() {
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium">Total Trips</CardTitle>
-                            <Sigma className="h-4 w-4 text-muted-foreground" />
+                            <Sigma className="h-4 w-4 text-purple-500" />
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold">{stats.totalTrips}</div>
@@ -142,7 +141,7 @@ export default function AdminStatsPageClient() {
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium">Active Users</CardTitle>
-                            <Users className="h-4 w-4 text-muted-foreground" />
+                            <Users className="h-4 w-4 text-green-500" />
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold">{activeUsers}</div>
@@ -152,7 +151,7 @@ export default function AdminStatsPageClient() {
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium">Avg Trip Duration</CardTitle>
-                            <Clock className="h-4 w-4 text-muted-foreground" />
+                            <Clock className="h-4 w-4 text-orange-500" />
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold">{stats.avgDuration.toFixed(0)} min</div>
