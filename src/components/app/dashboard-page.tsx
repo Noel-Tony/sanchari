@@ -12,6 +12,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { db } from '@/lib/firebase';
 import { collection, addDoc, query, where, onSnapshot, getDocs, limit } from 'firebase/firestore';
+import { useLanguage } from '@/context/language-context';
 
 interface CurrentTripState {
   isActive: boolean;
@@ -43,6 +44,7 @@ export default function DashboardPageClient() {
   const [locationEnabled, setLocationEnabled] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   useEffect(() => {
     const today = new Date();
@@ -64,8 +66,8 @@ export default function DashboardPageClient() {
   const startTrip = () => {
     if (!locationEnabled) {
         toast({
-            title: 'Location is Disabled',
-            description: 'Please enable the location toggle to start a new trip.',
+            title: t('Location is Disabled'),
+            description: t('Please enable the location toggle to start a new trip.'),
             variant: 'destructive',
         });
         return;
@@ -128,7 +130,7 @@ export default function DashboardPageClient() {
           <CardHeader>
              <div className="flex flex-row items-start justify-between">
                 <CardTitle className="text-2xl font-medium font-headline">
-                {currentTrip.isActive ? 'Trip in Progress' : 'Start a New Trip'}
+                {currentTrip.isActive ? t('Trip in Progress') : t('Start a New Trip')}
                 </CardTitle>
                 <div className="flex items-center space-x-2">
                     <Switch 
@@ -139,7 +141,7 @@ export default function DashboardPageClient() {
                         disabled={isProcessing || currentTrip.isActive}
                     />
                     <Label htmlFor="location-toggle" className="text-sm font-medium">
-                        Location
+                        {t('Location')}
                     </Label>
                 </div>
             </div>
@@ -150,12 +152,12 @@ export default function DashboardPageClient() {
                     <div className="text-md text-muted-foreground space-y-2 text-left w-full">
                         <div className="grid md:grid-cols-2 gap-4">
                             <div>
-                                <p className="flex items-center gap-2"><MapPin className="h-4 w-4 text-primary" /> <strong>From:</strong> {currentTrip.startLocation}</p>
-                                <p className="flex items-center gap-2 mt-2"><Clock className="h-4 w-4 text-primary" /> <strong>Started at:</strong> {new Date(currentTrip.startTime).toLocaleTimeString()}</p>
+                                <p className="flex items-center gap-2"><MapPin className="h-4 w-4 text-primary" /> <strong>{t('From')}:</strong> {currentTrip.startLocation}</p>
+                                <p className="flex items-center gap-2 mt-2"><Clock className="h-4 w-4 text-primary" /> <strong>{t('Started at')}:</strong> {new Date(currentTrip.startTime).toLocaleTimeString()}</p>
                                 <div className="pt-4 w-full flex justify-center md:justify-start">
                                 <Button onClick={endTrip} size="lg" variant='destructive' disabled={isTripControlsDisabled}>
                                     {isProcessing ? <Loader2 className="animate-spin" /> : <StopCircle />}
-                                    <span className="ml-2">End Trip</span>
+                                    <span className="ml-2">{t('End Trip')}</span>
                                 </Button>
                                 </div>
                             </div>
@@ -164,11 +166,11 @@ export default function DashboardPageClient() {
                 ) : (
                     <>
                         <p className="text-md text-muted-foreground">
-                            {locationEnabled ? 'Click "Start Trip" to begin recording your journey.' : 'Enable location to start a new trip.'}
+                            {locationEnabled ? t('Click "Start Trip" to begin recording your journey.') : t('Enable location to start a new trip.')}
                         </p>
                         <Button onClick={startTrip} size="lg" disabled={isTripControlsDisabled} variant={locationEnabled ? 'default' : 'secondary'}>
                             {isProcessing ? <Loader2 className="animate-spin" /> : <PlayCircle />}
-                            <span className="ml-2">Start Trip</span>
+                            <span className="ml-2">{t('Start Trip')}</span>
                         </Button>
                     </>
                 )}
@@ -178,7 +180,7 @@ export default function DashboardPageClient() {
       </div>
       
       <div className="mt-8">
-        <h2 className="text-2xl font-bold tracking-tight font-headline mb-4">Today's Trips</h2>
+        <h2 className="text-2xl font-bold tracking-tight font-headline mb-4">{t("Today's Trips")}</h2>
         {todaysTrips.length > 0 ? (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {todaysTrips.map(trip => (
@@ -201,7 +203,7 @@ export default function DashboardPageClient() {
           </div>
         ) : (
           <div className="text-center py-10 border-2 border-dashed rounded-lg">
-            <p className="text-muted-foreground">No trips recorded today.</p>
+            <p className="text-muted-foreground">{t('No trips recorded today.')}</p>
           </div>
         )}
       </div>

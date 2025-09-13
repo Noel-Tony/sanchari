@@ -37,56 +37,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-
-type Language = 'English' | 'Malayalam' | 'Hindi';
-
-const translations: Record<string, Record<Language, string>> = {
-  'Admin Dashboard': {
-    English: 'Admin Dashboard',
-    Malayalam: 'അഡ്മിൻ ഡാഷ്ബോർഡ്',
-    Hindi: 'एडमिन डैशबोर्ड',
-  },
-  'admin': {
-    English: 'Admin Dashboard',
-    Malayalam: 'അഡ്മിൻ ഡാഷ്ബോർഡ്',
-    Hindi: 'एडमिन डैशबोर्ड',
-  },
-  Statistics: {
-    English: 'Statistics',
-    Malayalam: 'സ്ഥിതിവിവരക്കണക്കുകൾ',
-    Hindi: 'आंकड़े',
-  },
-  'stats': {
-    English: 'Statistics',
-    Malayalam: 'സ്ഥിതിവിവരക്കണക്കുകൾ',
-    Hindi: 'आंकड़े',
-  },
-  Dashboard: {
-    English: 'Dashboard',
-    Malayalam: 'ഡാഷ്ബോർഡ്',
-    Hindi: 'डैशबोर्ड',
-  },
-  'dashboard': {
-    English: 'Dashboard',
-    Malayalam: 'ഡാഷ്ബോർഡ്',
-    Hindi: 'डैशबोर्ड',
-  },
-  'Trip History': {
-    English: 'Trip History',
-    Malayalam: 'യാത്രയുടെ ചരിത്രം',
-    Hindi: 'यात्रा इतिहास',
-  },
-  'history': {
-    English: 'Trip History',
-    Malayalam: 'യാത്രയുടെ ചരിത്രം',
-    Hindi: 'यात्रा इतिहास',
-  },
-  Logout: {
-    English: 'Logout',
-    Malayalam: 'ലോഗൗട്ട്',
-    Hindi: 'लॉग आउट',
-  },
-};
+import { useLanguage } from '@/context/language-context';
 
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -94,13 +45,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const [auth, setAuth] = useLocalStorage('auth', { isAuthenticated: false, role: 'user' });
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
-  const [language, setLanguage] = useState<Language>('English');
-
-  const t = (key: string) => {
-    const lowerKey = key.toLowerCase();
-    const entry = Object.keys(translations).find(k => k.toLowerCase() === lowerKey);
-    return entry ? translations[entry]?.[language] || key : key;
-  };
+  const { language, setLanguage, t } = useLanguage();
 
   const handleLogout = () => {
     setAuth({ isAuthenticated: false, role: null });
