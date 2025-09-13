@@ -21,7 +21,7 @@ import {
   Shield,
   BarChart,
   HelpCircle,
-  Globe,
+  Languages,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -200,7 +200,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon">
-                  <Globe className="h-5 w-5" />
+                  <Languages className="h-5 w-5" />
                   <span className="sr-only">Change language</span>
                 </Button>
               </DropdownMenuTrigger>
