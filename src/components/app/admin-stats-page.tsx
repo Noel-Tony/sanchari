@@ -13,6 +13,7 @@ import { db } from '@/lib/firebase';
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useLanguage } from '@/context/language-context';
 
 type Activity = {
   id: string;
@@ -37,6 +38,7 @@ const ActivityIcon = ({ type }: { type: Activity['type'] }) => {
 export default function AdminStatsPageClient() {
   const [trips, setTrips] = useState<Trip[]>([]);
   const [activities, setActivities] = useState<Activity[]>([]);
+  const { t } = useLanguage();
 
   useEffect(() => {
     const q = query(collection(db, 'trips'), orderBy('startTime', 'desc'));
@@ -144,7 +146,7 @@ export default function AdminStatsPageClient() {
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Total Trips</CardTitle>
+                        <CardTitle className="text-sm font-medium">{t('Total Trips')}</CardTitle>
                         <Sigma className="h-4 w-4 text-purple-500" />
                     </CardHeader>
                     <CardContent>
@@ -153,30 +155,30 @@ export default function AdminStatsPageClient() {
                 </Card>
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Active Users</CardTitle>
+                        <CardTitle className="text-sm font-medium">{t('Active Users')}</CardTitle>
                         <Users className="h-4 w-4 text-green-500" />
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{activeUsers}</div>
-                        <p className="text-xs text-muted-foreground">in last 30 days</p>
+                        <p className="text-xs text-muted-foreground">{t('in last 30 days')}</p>
                     </CardContent>
                 </Card>
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Avg Trip Duration</CardTitle>
+                        <CardTitle className="text-sm font-medium">{t('Avg Trip Duration')}</CardTitle>
                         <Clock className="h-4 w-4 text-orange-500" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{stats.avgDuration.toFixed(0)} min</div>
+                        <div className="text-2xl font-bold">{stats.avgDuration.toFixed(0)} {t('min')}</div>
                     </CardContent>
                 </Card>
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Top Transport</CardTitle>
+                        <CardTitle className="text-sm font-medium">{t('Top Transport')}</CardTitle>
                         <TransportIcon mode={stats.topTransport} />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold capitalize">{stats.topTransport}</div>
+                        <div className="text-2xl font-bold capitalize">{t(stats.topTransport)}</div>
                     </CardContent>
                 </Card>
             </div>
@@ -184,7 +186,7 @@ export default function AdminStatsPageClient() {
                  <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
                     <Card>
                         <CardHeader>
-                            <CardTitle>Transport Mode Distribution</CardTitle>
+                            <CardTitle>{t('Transport Mode Distribution')}</CardTitle>
                         </CardHeader>
                         <CardContent>
                         <ChartContainer config={modeChartConfig} className="min-h-[250px] w-full">
@@ -194,7 +196,7 @@ export default function AdminStatsPageClient() {
                                         tickLine={false} 
                                         tickMargin={10} 
                                         axisLine={false} 
-                                        tickFormatter={(value) => value.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')} 
+                                        tickFormatter={(value) => t(value.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '))} 
                                     />
                                     <YAxis />
                                     <Tooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
@@ -209,7 +211,7 @@ export default function AdminStatsPageClient() {
                     </Card>
                      <Card>
                         <CardHeader>
-                            <CardTitle>Trips by Purpose</CardTitle>
+                            <CardTitle>{t('Trips by Purpose')}</CardTitle>
                         </CardHeader>.
                         <CardContent>
                             <ChartContainer config={purposeChartConfig} className="min-h-[250px] w-full">
@@ -228,7 +230,7 @@ export default function AdminStatsPageClient() {
                 <div className="lg:col-span-1">
                     <Card>
                         <CardHeader>
-                            <CardTitle>Recent Activity</CardTitle>
+                            <CardTitle>{t('Recent Activity')}</CardTitle>
                         </CardHeader>
                         <CardContent>
                             <ScrollArea className="h-[400px]">
@@ -255,8 +257,8 @@ export default function AdminStatsPageClient() {
         </div>
         ) : (
             <div className="text-center py-20 border-2 border-dashed rounded-lg">
-                <h3 className="text-2xl font-bold tracking-tight">No Trip Data Available</h3>
-                <p className="text-muted-foreground">Waiting for data from Firestore...</p>
+                <h3 className="text-2xl font-bold tracking-tight">{t('No Trip Data Available')}</h3>
+                <p className="text-muted-foreground">{t('Waiting for data from Firestore...')}</p>
             </div>
         )}
     </main>

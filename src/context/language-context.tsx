@@ -30,7 +30,7 @@ const translations: Record<string, Record<Language, string>> = {
     "Today's Trips": { English: "Today's Trips", Malayalam: 'ഇന്നത്തെ യാത്രകൾ', Hindi: 'आज की यात्राएं' },
     'No trips recorded today.': { English: 'No trips recorded today.', Malayalam: 'ഇന്ന് യാത്രകളൊന്നും രേഖപ്പെടുത്തിയിട്ടില്ല.', Hindi: 'आज कोई यात्रा रिकॉर्ड नहीं की गई।' },
     
-    // Stats Page
+    // Stats Page (User)
     'Your Statistics': { English: 'Your Statistics', Malayalam: 'നിങ്ങളുടെ സ്ഥിതിവിവരക്കണക്കുകൾ', Hindi: 'आपके आँकड़े' },
     'Past Week': { English: 'Past Week', Malayalam: 'കഴിഞ്ഞ ആഴ്ച', Hindi: 'पिछला सप्ताह' },
     'Past Month': { English: 'Past Month', Malayalam: 'കഴിഞ്ഞ മാസം', Hindi: 'पिछला महीना' },
@@ -57,6 +57,14 @@ const translations: Record<string, Record<Language, string>> = {
     // Toasts
     'Location is Disabled': { English: 'Location is Disabled', Malayalam: 'ലൊക്കേഷൻ പ്രവർത്തനരഹിതമാക്കി', Hindi: 'स्थान अक्षम है' },
     'Please enable the location toggle to start a new trip.': { English: 'Please enable the location toggle to start a new trip.', Malayalam: 'ഒരു പുതിയ യാത്ര ആരംഭിക്കാൻ ദയവായി ലൊക്കേഷൻ ടോഗിൾ പ്രവർത്തനക്ഷമമാക്കുക.', Hindi: 'एक नई यात्रा शुरू करने के लिए कृपया स्थान टॉगल सक्षम करें।' },
+
+    // Admin
+    'Waiting for data from Firestore...': { English: 'Waiting for data from Firestore...', Malayalam: 'ഫയർസ്റ്റോറിൽ നിന്ന് ഡാറ്റയ്ക്കായി കാത്തിരിക്കുന്നു...', Hindi: 'फायरस्टोर से डेटा की प्रतीक्षा है...' },
+    'There is no trip data from any user yet.': { English: 'There is no trip data from any user yet.', Malayalam: 'ഒരു ഉപയോക്താവിൽ നിന്നും ഇതുവരെ യാത്രാ ഡാറ്റയൊന്നും ലഭ്യമല്ല.', Hindi: 'अभी तक किसी भी उपयोगकर्ता से कोई यात्रा डेटा नहीं है।' },
+    'All User Trips': { English: 'All User Trips', Malayalam: 'എല്ലാ ഉപയോക്താക്കളുടെയും യാത്രകൾ', Hindi: 'सभी उपयोगकर्ता यात्राएं' },
+    'A comprehensive log of all trips recorded by users.': { English: 'A comprehensive log of all trips recorded by users.', Malayalam: 'ഉപയോക്താക്കൾ രേഖപ്പെടുത്തിയ എല്ലാ യാത്രകളുടെയും ഒരു സമഗ്രമായ ലോഗ്.', Hindi: 'उपयोगकर्ताओं द्वारा रिकॉर्ड की गई सभी यात्राओं का एक व्यापक लॉग।' },
+    'Export to CSV': { English: 'Export to CSV', Malayalam: 'CSV-യിലേക്ക് എക്സ്പോർട്ട് ചെയ്യുക', Hindi: 'सीएसवी में निर्यात करें' },
+
 };
 
 

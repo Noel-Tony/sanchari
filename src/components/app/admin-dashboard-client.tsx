@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { useMemo, useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { useLanguage } from '@/context/language-context';
 
 
 const TransportIcon = ({ mode }: { mode: TransportMode }) => {
@@ -23,6 +24,7 @@ const TransportIcon = ({ mode }: { mode: TransportMode }) => {
 
 export default function AdminDashboardClient() {
   const [trips, setTrips] = useState<Trip[]>([]);
+  const { t } = useLanguage();
 
   useEffect(() => {
     const q = query(collection(db, 'trips'), orderBy('startTime', 'desc'));
@@ -88,25 +90,25 @@ export default function AdminDashboardClient() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <CardTitle>All User Trips</CardTitle>
-              <CardDescription>A comprehensive log of all trips recorded by users.</CardDescription>
+              <CardTitle>{t('All User Trips')}</CardTitle>
+              <CardDescription>{t('A comprehensive log of all trips recorded by users.')}</CardDescription>
             </div>
             <Button onClick={handleExport} disabled={sortedTrips.length === 0}>
               <Download className="mr-2 h-4 w-4" />
-              Export to CSV
+              {t('Export to CSV')}
             </Button>
           </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Route</TableHead>
-                  <TableHead>Purpose</TableHead>
-                  <TableHead>Mode</TableHead>
-                  <TableHead>Duration</TableHead>
-                  <TableHead>Distance</TableHead>
-                  <TableHead>Co-Travellers</TableHead>
+                  <TableHead>{t('Date')}</TableHead>
+                  <TableHead>{t('Route')}</TableHead>
+                  <TableHead>{t('Purpose')}</TableHead>
+                  <TableHead>{t('Mode')}</TableHead>
+                  <TableHead>{t('Duration')}</TableHead>
+                  <TableHead>{t('Distance')}</TableHead>
+                  <TableHead>{t('Co-Travellers')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -114,18 +116,18 @@ export default function AdminDashboardClient() {
                   <TableRow key={trip.id}>
                     <TableCell>{new Date(trip.startTime).toLocaleDateString()}</TableCell>
                     <TableCell>{trip.startLocation} to {trip.endLocation}</TableCell>
-                    <TableCell className="capitalize">{trip.purpose}</TableCell>
+                    <TableCell className="capitalize">{t(trip.purpose)}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <TransportIcon mode={trip.mode} />
-                        <span className="capitalize">{trip.mode}</span>
+                        <span className="capitalize">{t(trip.mode)}</span>
                       </div>
                     </TableCell>
                     <TableCell>
-                      {`${Math.round((trip.endTime - trip.startTime) / 60000)} mins`}
+                      {`${Math.round((trip.endTime - trip.startTime) / 60000)} ${t('mins')}`}
                     </TableCell>
                     <TableCell>
-                      {`${(trip.distance || 0).toFixed(1)} miles`}
+                      {`${(trip.distance || 0).toFixed(1)} ${t('miles')}`}
                     </TableCell>
                     <TableCell>{trip.coTravellers}</TableCell>
                   </TableRow>
@@ -136,8 +138,8 @@ export default function AdminDashboardClient() {
         </Card>
       ) : (
         <div className="text-center py-20 border-2 border-dashed rounded-lg">
-          <h3 className="text-2xl font-bold tracking-tight">No Trip Data Available</h3>
-          <p className="text-muted-foreground">There is no trip data from any user yet.</p>
+          <h3 className="text-2xl font-bold tracking-tight">{t('No Trip Data Available')}</h3>
+          <p className="text-muted-foreground">{t('There is no trip data from any user yet.')}</p>
         </div>
       )}
     </main>
