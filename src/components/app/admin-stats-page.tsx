@@ -172,19 +172,24 @@ export default function AdminStatsPageClient() {
                         <CardTitle>Transport Mode Distribution</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="space-y-4">
-                            {modeData.map(d => (
-                                <div key={d.mode}>
-                                    <div className="flex justify-between mb-1">
-                                        <span className="text-sm font-medium capitalize">{d.mode}</span>
-                                        <span className="text-sm text-muted-foreground">{d.trips} trips</span>
-                                    </div>
-                                    <div className="w-full bg-secondary rounded-full h-2.5">
-                                        <div className="h-2.5 rounded-full" style={{ width: `${(d.trips / stats.totalTrips) * 100}%`, backgroundColor: d.fill }}></div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
+                       <ChartContainer config={modeChartConfig} className="min-h-[250px] w-full">
+                            <BarChart accessibilityLayer data={modeData}>
+                                <XAxis 
+                                    dataKey="mode" 
+                                    tickLine={false} 
+                                    tickMargin={10} 
+                                    axisLine={false} 
+                                    tickFormatter={(value) => value.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')} 
+                                />
+                                <YAxis />
+                                <Tooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
+                                <Bar dataKey="trips" radius={8}>
+                                    {modeData.map((entry) => (
+                                        <Cell key={`cell-${entry.mode}`} fill={entry.fill} />
+                                    ))}
+                                </Bar>
+                            </BarChart>
+                        </ChartContainer>
                     </CardContent>
                 </Card>
             </div>
