@@ -5,16 +5,16 @@ import useLocalStorage from '@/hooks/use-local-storage';
 import type { Trip, TransportMode } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Footprints, Bike, Car, HelpCircle, Download } from 'lucide-react';
+import { Bus, Bike, Car, HelpCircle, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useMemo } from 'react';
 
 const TransportIcon = ({ mode }: { mode: TransportMode }) => {
     const props = { className: 'h-5 w-5 text-muted-foreground' };
     switch (mode) {
-      case 'walking': return <Footprints {...props} />;
-      case 'cycling': return <Bike {...props} />;
-      case 'vehicle': return <Car {...props} />;
+      case 'bike': return <Bike {...props} />;
+      case 'car': return <Car {...props} />;
+      case 'public transport': return <Bus {...props} />;
       default: return <HelpCircle {...props} />;
     }
 };

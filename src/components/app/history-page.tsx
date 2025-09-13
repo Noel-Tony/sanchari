@@ -4,7 +4,7 @@
 import useLocalStorage from '@/hooks/use-local-storage';
 import type { Trip, TransportMode } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Footprints, Bike, Car, Users, Clock, HelpCircle, MapPin, ArrowRight } from 'lucide-react';
+import { Bus, Bike, Car, Users, Clock, HelpCircle, MapPin, ArrowRight } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
@@ -12,12 +12,12 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 const TransportIcon = ({ mode, className }: { mode: TransportMode; className?: string }) => {
   const props = { className: className || 'h-6 w-6 text-primary' };
   switch (mode) {
-    case 'walking':
-      return <Footprints {...props} />;
-    case 'cycling':
+    case 'bike':
       return <Bike {...props} />;
-    case 'vehicle':
+    case 'car':
       return <Car {...props} />;
+    case 'public transport':
+        return <Bus {...props} />;
     default:
       return <HelpCircle {...props} />;
   }

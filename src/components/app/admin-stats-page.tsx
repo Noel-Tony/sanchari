@@ -50,7 +50,7 @@ export default function AdminStatsPageClient() {
     const modeData = Object.entries(modeCounts).map(([mode, count]) => ({
       mode,
       trips: count,
-      fill: `var(--color-${mode})`
+      fill: `var(--color-${mode.replace(' ', '-')})`
     }));
 
     const purposeData = Object.entries(purposeCounts).map(([purpose, count]) => ({
@@ -64,9 +64,9 @@ export default function AdminStatsPageClient() {
 
   const modeChartConfig = {
     trips: { label: 'Trips' },
-    walking: { label: 'Walking', color: 'hsl(var(--chart-1))' },
-    cycling: { label: 'Cycling', color: 'hsl(var(--chart-2))' },
-    vehicle: { label: 'Vehicle', color: 'hsl(var(--chart-3))' },
+    car: { label: 'Car', color: 'hsl(var(--chart-1))' },
+    bike: { label: 'Bike', color: 'hsl(var(--chart-2))' },
+    'public-transport': { label: 'Public Transport', color: 'hsl(var(--chart-3))' },
   } satisfies ChartConfig;
 
   const purposeChartConfig = {

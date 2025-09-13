@@ -1,4 +1,4 @@
-export const transportModes = ['walking', 'cycling', 'vehicle'] as const;
+export const transportModes = ['car', 'bike', 'public transport'] as const;
 export type TransportMode = (typeof transportModes)[number];
 
 export const tripPurposes = ['work', 'school', 'shopping', 'leisure'] as const;

@@ -4,7 +4,7 @@
 import { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PlayCircle, StopCircle, Car, Bike, Footprints, Clock, MapPin, Users, HelpCircle, Loader2 } from 'lucide-react';
+import { PlayCircle, StopCircle, Car, Bike, Clock, MapPin, Users, HelpCircle, Loader2, Bus } from 'lucide-react';
 import TripFormModal from './trip-form-modal';
 import useLocalStorage from '@/hooks/use-local-storage';
 import type { Trip, TransportMode } from '@/lib/types';
@@ -21,9 +21,9 @@ interface CurrentTripState {
 const TransportIcon = ({ mode, className }: { mode: TransportMode, className?: string }) => {
   const props = { className: className || 'h-5 w-5' };
   switch (mode) {
-    case 'walking': return <Footprints {...props} />;
-    case 'cycling': return <Bike {...props} />;
-    case 'vehicle': return <Car {...props} />;
+    case 'bike': return <Bike {...props} />;
+    case 'car': return <Car {...props} />;
+    case 'public transport': return <Bus {...props} />;
     default: return <HelpCircle {...props} />;
   }
 };

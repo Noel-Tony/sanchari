@@ -57,7 +57,7 @@ export default function TripFormModal({ isOpen, onClose, onSave, tripData, allTr
     resolver: zodResolver(formSchema),
     defaultValues: {
       purpose: undefined,
-      mode: 'vehicle', // Default simulation
+      mode: 'car', // Default simulation
       coTravellers: 0,
     },
   });
