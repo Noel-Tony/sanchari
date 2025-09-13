@@ -62,7 +62,7 @@ export default function AdminStatsPageClient() {
     return () => unsubscribe();
   }, []);
 
-  const { stats, modeData, activeUsers } = useMemo(() => {
+  const { stats, modeData, purposeData, activeUsers } = useMemo(() => {
     const totalTrips = trips.length;
     const totalDistance = trips.reduce((sum, trip) => sum + (trip.distance || 0), 0);
     const totalDuration = trips.reduce((sum, trip) => sum + (trip.endTime - trip.startTime), 0);
@@ -72,6 +72,11 @@ export default function AdminStatsPageClient() {
       acc[trip.mode] = (acc[trip.mode] || 0) + 1;
       return acc;
     }, {} as Record<TransportMode, number>);
+
+    const purposeCounts = trips.reduce((acc, trip) => {
+        acc[trip.purpose] = (acc[trip.purpose] || 0) + 1;
+        return acc;
+      }, {} as Record<TripPurpose, number>);
 
     const topTransport = Object.entries(modeCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || 'N/A';
 
@@ -87,6 +92,12 @@ export default function AdminStatsPageClient() {
       fill: `var(--color-${mode.replace(/[\s_]/g, '-')})`
     }));
 
+     const purposeData = Object.entries(purposeCounts).map(([purpose, count]) => ({
+        purpose,
+        trips: count,
+        fill: `var(--color-${purpose})`
+    }));
+
     return {
       stats: {
         totalTrips,
@@ -95,6 +106,7 @@ export default function AdminStatsPageClient() {
         topTransport,
       },
       modeData,
+      purposeData,
       activeUsers: activeUserIds.size,
     };
   }, [trips]);
@@ -104,8 +116,14 @@ export default function AdminStatsPageClient() {
     car: { label: 'Car', color: 'hsl(var(--chart-1))' },
     bike: { label: 'Bike', color: 'hsl(var(--chart-2))' },
     'public-transport': { label: 'Public Transport', color: 'hsl(var(--chart-3))' },
-    walk: { label: 'Walk', color: 'hsl(var(--chart-4))' },
-    bus: { label: 'Bus', color: 'hsl(var(--chart-5))' },
+  } satisfies ChartConfig;
+  
+  const purposeChartConfig = {
+    trips: { label: 'Trips' },
+    work: { label: 'Work', color: 'hsl(var(--chart-1))' },
+    school: { label: 'School', color: 'hsl(var(--chart-2))' },
+    shopping: { label: 'Shopping', color: 'hsl(var(--chart-3))' },
+    leisure: { label: 'Leisure', color: 'hsl(var(--chart-4))' },
   } satisfies ChartConfig;
 
 
@@ -126,99 +144,118 @@ export default function AdminStatsPageClient() {
       </div>
 
         {trips.length > 0 ? (
-        <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
-            <div className="lg:col-span-2 space-y-6">
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                    <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Total Trips</CardTitle>
-                            <Sigma className="h-4 w-4 text-purple-500" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold">{stats.totalTrips}</div>
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Active Users</CardTitle>
-                            <Users className="h-4 w-4 text-green-500" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold">{activeUsers}</div>
-                            <p className="text-xs text-muted-foreground">in last 30 days</p>
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Avg Trip Duration</CardTitle>
-                            <Clock className="h-4 w-4 text-orange-500" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold">{stats.avgDuration.toFixed(0)} min</div>
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Top Transport</CardTitle>
-                            <TransportIcon mode={stats.topTransport} />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold capitalize">{stats.topTransport}</div>
-                        </CardContent>
-                    </Card>
-                </div>
+        <div className='space-y-6'>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <Card>
-                    <CardHeader>
-                        <CardTitle>Transport Mode Distribution</CardTitle>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Total Trips</CardTitle>
+                        <Sigma className="h-4 w-4 text-purple-500" />
                     </CardHeader>
                     <CardContent>
-                       <ChartContainer config={modeChartConfig} className="min-h-[250px] w-full">
-                            <BarChart accessibilityLayer data={modeData}>
-                                <XAxis 
-                                    dataKey="mode" 
-                                    tickLine={false} 
-                                    tickMargin={10} 
-                                    axisLine={false} 
-                                    tickFormatter={(value) => value.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')} 
-                                />
-                                <YAxis />
-                                <Tooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
-                                <Bar dataKey="trips" radius={8}>
-                                    {modeData.map((entry) => (
-                                        <Cell key={`cell-${entry.mode}`} fill={entry.fill} />
-                                    ))}
-                                </Bar>
-                            </BarChart>
-                        </ChartContainer>
+                        <div className="text-2xl font-bold">{stats.totalTrips}</div>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Active Users</CardTitle>
+                        <Users className="h-4 w-4 text-green-500" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">{activeUsers}</div>
+                        <p className="text-xs text-muted-foreground">in last 30 days</p>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Avg Trip Duration</CardTitle>
+                        <Clock className="h-4 w-4 text-orange-500" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">{stats.avgDuration.toFixed(0)} min</div>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Top Transport</CardTitle>
+                        <TransportIcon mode={stats.topTransport} />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold capitalize">{stats.topTransport}</div>
                     </CardContent>
                 </Card>
             </div>
-             <div className="lg:col-span-1">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Recent Activity</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <ScrollArea className="h-[450px]">
-                        <div className="space-y-4">
-                            {activities.map((activity) => (
-                            <div key={activity.id} className="flex items-start gap-4">
-                                <div className="mt-1">
-                                <ActivityIcon type={activity.type} />
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                 <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Transport Mode Distribution</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                        <ChartContainer config={modeChartConfig} className="min-h-[250px] w-full">
+                                <BarChart accessibilityLayer data={modeData}>
+                                    <XAxis 
+                                        dataKey="mode" 
+                                        tickLine={false} 
+                                        tickMargin={10} 
+                                        axisLine={false} 
+                                        tickFormatter={(value) => value.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')} 
+                                    />
+                                    <YAxis />
+                                    <Tooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
+                                    <Bar dataKey="trips" radius={8}>
+                                        {modeData.map((entry) => (
+                                            <Cell key={`cell-${entry.mode}`} fill={entry.fill} />
+                                        ))}
+                                    </Bar>
+                                </BarChart>
+                            </ChartContainer>
+                        </CardContent>
+                    </Card>
+                     <Card>
+                        <CardHeader>
+                            <CardTitle>Trips by Purpose</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <ChartContainer config={purposeChartConfig} className="min-h-[250px] w-full">
+                                <PieChart>
+                                    <Tooltip content={<ChartTooltipContent hideLabel nameKey="purpose" />} />
+                                    <Pie data={purposeData} dataKey="trips" nameKey="purpose" innerRadius={50}>
+                                            {purposeData.map((entry) => (
+                                            <Cell key={`cell-${entry.purpose}`} fill={entry.fill} />
+                                        ))}
+                                    </Pie>
+                                </PieChart>
+                            </ChartContainer>
+                        </CardContent>
+                    </Card>
+                </div>
+                <div className="lg:col-span-1">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Recent Activity</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <ScrollArea className="h-[400px]">
+                            <div className="space-y-4">
+                                {activities.map((activity) => (
+                                <div key={activity.id} className="flex items-start gap-4">
+                                    <div className="mt-1">
+                                    <ActivityIcon type={activity.type} />
+                                    </div>
+                                    <div className="flex-1">
+                                    <p className="text-sm font-medium">{activity.details}</p>
+                                    <p className="text-xs text-muted-foreground">
+                                        {new Date(activity.timestamp).toLocaleString()}
+                                    </p>
+                                    </div>
                                 </div>
-                                <div className="flex-1">
-                                <p className="text-sm font-medium">{activity.details}</p>
-                                <p className="text-xs text-muted-foreground">
-                                    {new Date(activity.timestamp).toLocaleString()}
-                                </p>
-                                </div>
+                                ))}
                             </div>
-                            ))}
-                        </div>
-                        </ScrollArea>
-                    </CardContent>
-                </Card>
-             </div>
+                            </ScrollArea>
+                        </CardContent>
+                    </Card>
+                </div>
+            </div>
         </div>
         ) : (
             <div className="text-center py-20 border-2 border-dashed rounded-lg">
