@@ -1,5 +1,6 @@
 
 'use client';
+import { useState } from 'react';
 import {
   Sidebar,
   SidebarContent,
@@ -19,6 +20,7 @@ import {
   LogOut,
   Shield,
   BarChart,
+  HelpCircle,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -27,11 +29,13 @@ import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Button } from '../ui/button';
 import { ThemeToggle } from '../theme-toggle';
 import useLocalStorage from '@/hooks/use-local-storage';
+import HelpModal from './help-modal';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const [auth, setAuth] = useLocalStorage('auth', { isAuthenticated: false, role: 'user' });
+  const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
 
   const handleLogout = () => {
     setAuth({ isAuthenticated: false, role: null });
@@ -129,6 +133,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               </h1>
             </div>
             <ThemeToggle />
+            {auth.role === 'user' && (
+              <Button variant="ghost" size="icon" onClick={() => setIsHelpModalOpen(true)}>
+                <HelpCircle className="h-5 w-5" />
+                <span className="sr-only">Help</span>
+              </Button>
+            )}
             <Button variant="ghost" size="icon" asChild>
                 <a href="https://github.com/firebase/studio" target="_blank" rel="noopener noreferrer">
                     <Github className="h-5 w-5" />
@@ -137,6 +147,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             </Button>
         </header>
         {children}
+        {isHelpModalOpen && <HelpModal onClose={() => setIsHelpModalOpen(false)} />}
       </SidebarInset>
     </SidebarProvider>
   );
