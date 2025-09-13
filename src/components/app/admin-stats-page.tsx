@@ -21,7 +21,7 @@ type Activity = {
   details: string;
 };
 
-constกิจกรรมIcon = ({ type }: { type: Activity['type'] }) => {
+const ActivityIcon = ({ type }: { type: Activity['type'] }) => {
   switch (type) {
     case 'new_trip':
       return <FileText className="h-5 w-5 text-blue-500" />;
@@ -200,7 +200,7 @@ export default function AdminStatsPageClient() {
                             {activities.map((activity) => (
                             <div key={activity.id} className="flex items-start gap-4">
                                 <div className="mt-1">
-                                <กิจกรรมIcon type={activity.type} />
+                                <ActivityIcon type={activity.type} />
                                 </div>
                                 <div className="flex-1">
                                 <p className="text-sm font-medium">{activity.details}</p>

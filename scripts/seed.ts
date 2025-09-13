@@ -4,12 +4,12 @@ import { getFirestore, collection, addDoc } from 'firebase/firestore';
 
 // IMPORTANT: Replace with your actual Firebase config
 const firebaseConfig = {
-  apiKey: 'TODO: Add your API key',
-  authDomain: 'TODO: Add your auth domain',
-  projectId: 'TODO: Add your project ID',
-  storageBucket: 'TODO: Add your storage bucket',
-  messagingSenderId: 'TODO: Add your messaging sender ID',
-  appId: 'TODO: Add your app ID',
+  apiKey: "TODO: Add your API key",
+  authDomain: "TODO: Add your auth domain",
+  projectId: "TODO: Add your project ID",
+  storageBucket: "TODO: Add your storage bucket",
+  messagingSenderId: "TODO: Add your messaging sender ID",
+  appId: "TODO: Add your app ID",
 };
 
 const app = initializeApp(firebaseConfig);
