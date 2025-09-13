@@ -9,6 +9,7 @@ import { Separator } from '@/components/ui/separator';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { db } from '@/lib/firebase';
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { useLanguage } from '@/context/language-context';
 
 
 const TransportIcon = ({ mode, className }: { mode: TransportMode; className?: string }) => {
@@ -28,6 +29,7 @@ const TransportIcon = ({ mode, className }: { mode: TransportMode; className?: s
 export default function HistoryPageClient() {
   const [trips, setTrips] = useState<Trip[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { t } = useLanguage();
 
   useEffect(() => {
     const q = query(collection(db, 'trips'), orderBy('startTime', 'desc'));
@@ -46,8 +48,8 @@ export default function HistoryPageClient() {
     return (
         <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
             <div className="flex h-[50vh] flex-col items-center justify-center rounded-lg border-2 border-dashed">
-                <h3 className="text-2xl font-bold tracking-tight">Loading Trip History...</h3>
-                <p className="text-muted-foreground">Fetching data from Firestore.</p>
+                <h3 className="text-2xl font-bold tracking-tight">{t('Loading Trip History...')}</h3>
+                <p className="text-muted-foreground">{t('Fetching data from Firestore.')}</p>
             </div>
         </main>
     );
@@ -83,8 +85,8 @@ export default function HistoryPageClient() {
                             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-sm">
                                 <div className="flex items-center gap-4">
                                     <div className="text-center">
-                                        <p className="font-semibold capitalize text-lg text-primary">{trip.purpose}</p>
-                                        <p className="text-xs text-muted-foreground">Purpose</p>
+                                        <p className="font-semibold capitalize text-lg text-primary">{t(trip.purpose)}</p>
+                                        <p className="text-xs text-muted-foreground">{t('Purpose')}</p>
                                     </div>
                                     <Separator orientation="vertical" className="h-10" />
                                     <div className="flex items-center gap-2 text-muted-foreground">
@@ -97,12 +99,12 @@ export default function HistoryPageClient() {
                                     <Separator orientation="vertical" className="h-10 hidden md:block" />
                                      <div className="flex items-center gap-2 text-muted-foreground hidden md:flex">
                                         <Users className="h-4 w-4" />
-                                        <span>{trip.coTravellers} co-traveller{trip.coTravellers !== 1 ? 's' : ''}</span>
+                                        <span>{trip.coTravellers} {t(trip.coTravellers !== 1 ? 'co-travellers' : 'co-traveller')}</span>
                                     </div>
                                 </div>
 
                                 <div className="font-bold text-right">
-                                    {(trip.distance || 0).toFixed(2)} miles
+                                    {(trip.distance || 0).toFixed(2)} {t('miles')}
                                 </div>
                             </div>
                         </CardContent>
@@ -113,8 +115,8 @@ export default function HistoryPageClient() {
         </Accordion>
       ) : (
         <div className="flex h-[50vh] flex-col items-center justify-center rounded-lg border-2 border-dashed">
-          <h3 className="text-2xl font-bold tracking-tight">No Trip History</h3>
-          <p className="text-muted-foreground">Start a trip on the dashboard to see your history here.</p>
+          <h3 className="text-2xl font-bold tracking-tight">{t('No Trip History')}</h3>
+          <p className="text-muted-foreground">{t('Start a trip on the dashboard to see your history here.')}</p>
         </div>
       )}
     </main>

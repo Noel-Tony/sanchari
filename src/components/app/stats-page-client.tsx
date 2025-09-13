@@ -10,12 +10,14 @@ import { ChartConfig, ChartContainer, ChartTooltipContent } from '@/components/u
 import { Sigma, Route, Clock } from 'lucide-react';
 import { db } from '@/lib/firebase';
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { useLanguage } from '@/context/language-context';
 
 type TimePeriod = 'past-week' | 'past-month' | 'all-time';
 
 export default function StatsPageClient() {
   const [allTrips, setAllTrips] = useState<Trip[]>([]);
   const [timePeriod, setTimePeriod] = useState<TimePeriod>('past-month');
+  const { t } = useLanguage();
 
   useEffect(() => {
     const q = query(collection(db, 'trips'), orderBy('startTime', 'desc'));
@@ -92,15 +94,15 @@ export default function StatsPageClient() {
   return (
     <main className="flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold font-headline">Your Statistics</h1>
+        <h1 className="text-2xl font-bold font-headline">{t('Your Statistics')}</h1>
         <Select value={timePeriod} onValueChange={(value: TimePeriod) => setTimePeriod(value)}>
             <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Select period" />
+                <SelectValue placeholder={t('Select period')} />
             </SelectTrigger>
             <SelectContent>
-                <SelectItem value="past-week">Past Week</SelectItem>
-                <SelectItem value="past-month">Past Month</SelectItem>
-                <SelectItem value="all-time">All Time</SelectItem>
+                <SelectItem value="past-week">{t('Past Week')}</SelectItem>
+                <SelectItem value="past-month">{t('Past Month')}</SelectItem>
+                <SelectItem value="all-time">{t('All Time')}</SelectItem>
             </SelectContent>
         </Select>
       </div>
@@ -110,7 +112,7 @@ export default function StatsPageClient() {
             <div className="grid gap-4 md:grid-cols-3">
             <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Total Trips</CardTitle>
+                    <CardTitle className="text-sm font-medium">{t('Total Trips')}</CardTitle>
                     <Sigma className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
@@ -119,27 +121,27 @@ export default function StatsPageClient() {
             </Card>
             <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Total Distance</CardTitle>
+                    <CardTitle className="text-sm font-medium">{t('Total Distance')}</CardTitle>
                     <Route className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                    <div className="text-2xl font-bold">{stats.totalDistance.toFixed(1)} <span className="text-base font-medium text-muted-foreground">miles</span></div>
+                    <div className="text-2xl font-bold">{stats.totalDistance.toFixed(1)} <span className="text-base font-medium text-muted-foreground">{t('miles')}</span></div>
                 </CardContent>
             </Card>
             <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Total Time</CardTitle>
+                    <CardTitle className="text-sm font-medium">{t('Total Time')}</CardTitle>
                     <Clock className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                    <div className="text-2xl font-bold">{stats.totalMinutes} <span className="text-base font-medium text-muted-foreground">min</span></div>
+                    <div className="text-2xl font-bold">{stats.totalMinutes} <span className="text-base font-medium text-muted-foreground">{t('min')}</span></div>
                 </CardContent>
             </Card>
             </div>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7 mt-4">
                 <Card className="lg:col-span-4">
                     <CardHeader>
-                        <CardTitle>Trips by Transport Mode</CardTitle>
+                        <CardTitle>{t('Trips by Transport Mode')}</CardTitle>
                     </CardHeader>
                     <CardContent>
                             <ChartContainer config={modeChartConfig} className="min-h-[300px] w-full">
@@ -154,7 +156,7 @@ export default function StatsPageClient() {
                 </Card>
                 <Card className="lg:col-span-3">
                         <CardHeader>
-                        <CardTitle>Trips by Purpose</CardTitle>
+                        <CardTitle>{t('Trips by Purpose')}</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <ChartContainer config={purposeChartConfig} className="min-h-[300px] w-full">
@@ -173,8 +175,8 @@ export default function StatsPageClient() {
         </>
       ) : (
         <div className="text-center py-20 border-2 border-dashed rounded-lg">
-          <h3 className="text-2xl font-bold tracking-tight">No Trip Data Available</h3>
-          <p className="text-muted-foreground">Start recording trips to see your statistics here.</p>
+          <h3 className="text-2xl font-bold tracking-tight">{t('No Trip Data Available')}</h3>
+          <p className="text-muted-foreground">{t('Start recording trips to see your statistics here.')}</p>
         </div>
       )}
     </main>
