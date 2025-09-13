@@ -44,13 +44,13 @@ export default function HelpModal({ onClose }: HelpModalProps) {
             <AccordionItem value="item-2">
               <AccordionTrigger className="text-lg">How do I add a trip?</AccordionTrigger>
               <AccordionContent className="text-base text-muted-foreground">
-                On the Dashboard, click "Start Trip" to begin recording. When your trip is finished, click "End Trip". A form will appear asking you to confirm details like the purpose and mode of transport before saving.
+                 On the Dashboard, click "Start Trip" to begin recording. When your trip is finished, click "End Trip". A form will appear asking for details like purpose and transport mode before saving.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="item-3">
               <AccordionTrigger className="text-lg">Where can I see my trips?</AccordionTrigger>
               <AccordionContent className="text-base text-muted-foreground">
-                The "Dashboard" shows your most recent trips for the day. For a complete list of all your entries, please visit the "Trip History" page. Your travel statistics are available on the "Statistics" page.
+                The "Dashboard" shows your most recent trips. For a complete list of all your entries, please visit the "Trip History" page.
               </AccordionContent>
             </AccordionItem>
           </Accordion>
