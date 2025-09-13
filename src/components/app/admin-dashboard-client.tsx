@@ -1,13 +1,15 @@
 
 'use client';
 
-import useLocalStorage from '@/hooks/use-local-storage';
 import type { Trip, TransportMode } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Bus, Bike, Car, HelpCircle, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
+import { db } from '@/lib/firebase';
+import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
+
 
 const TransportIcon = ({ mode }: { mode: TransportMode }) => {
     const props = { className: 'h-5 w-5 text-muted-foreground' };
@@ -20,7 +22,20 @@ const TransportIcon = ({ mode }: { mode: TransportMode }) => {
 };
 
 export default function AdminDashboardClient() {
-  const [trips] = useLocalStorage<Trip[]>('trips', []);
+  const [trips, setTrips] = useState<Trip[]>([]);
+
+  useEffect(() => {
+    const q = query(collection(db, 'trips'), orderBy('startTime', 'desc'));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const tripsData: Trip[] = [];
+      querySnapshot.forEach((doc) => {
+        tripsData.push({ id: doc.id, ...doc.data() } as Trip);
+      });
+      setTrips(tripsData);
+    });
+    return () => unsubscribe();
+  }, []);
+
 
   const handleExport = () => {
     if (trips.length === 0) return;
@@ -65,9 +80,7 @@ export default function AdminDashboardClient() {
     document.body.removeChild(link);
   };
 
-  const sortedTrips = useMemo(() => {
-    return [...trips].sort((a, b) => b.startTime - a.startTime);
-  }, [trips]);
+  const sortedTrips = trips;
 
   return (
     <main className="flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">

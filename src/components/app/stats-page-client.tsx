@@ -1,25 +1,38 @@
 
 'use client';
 
-import { useMemo, useState } from 'react';
-import useLocalStorage from '@/hooks/use-local-storage';
+import { useMemo, useState, useEffect } from 'react';
 import type { Trip, TransportMode, TripPurpose } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Bar, BarChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis, Cell } from 'recharts';
 import { ChartConfig, ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
 import { Sigma, Route, Clock } from 'lucide-react';
+import { db } from '@/lib/firebase';
+import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 
 type TimePeriod = 'past-week' | 'past-month' | 'all-time';
 
 export default function StatsPageClient() {
-  const [trips] = useLocalStorage<Trip[]>('trips', []);
+  const [allTrips, setAllTrips] = useState<Trip[]>([]);
   const [timePeriod, setTimePeriod] = useState<TimePeriod>('past-month');
+
+  useEffect(() => {
+    const q = query(collection(db, 'trips'), orderBy('startTime', 'desc'));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const tripsData: Trip[] = [];
+      querySnapshot.forEach((doc) => {
+        tripsData.push({ id: doc.id, ...doc.data() } as Trip);
+      });
+      setAllTrips(tripsData);
+    });
+    return () => unsubscribe();
+  }, []);
 
   const filteredTrips = useMemo(() => {
     const now = new Date();
     if (timePeriod === 'all-time') {
-      return trips;
+      return allTrips;
     }
     const startTime = new Date(now);
     if (timePeriod === 'past-week') {
@@ -27,12 +40,12 @@ export default function StatsPageClient() {
     } else { // past-month
       startTime.setMonth(now.getMonth() - 1);
     }
-    return trips.filter(trip => trip.startTime >= startTime.getTime());
-  }, [trips, timePeriod]);
+    return allTrips.filter(trip => trip.startTime >= startTime.getTime());
+  }, [allTrips, timePeriod]);
 
   const { stats, modeData, purposeData } = useMemo(() => {
     const totalTrips = filteredTrips.length;
-    const totalDistance = filteredTrips.reduce((sum, trip) => sum + trip.distance, 0);
+    const totalDistance = filteredTrips.reduce((sum, trip) => sum + (trip.distance || 0), 0);
     const totalTime = filteredTrips.reduce((sum, trip) => sum + (trip.endTime - trip.startTime), 0);
     const totalMinutes = Math.round(totalTime / 60000);
 

@@ -1,12 +1,14 @@
 
 'use client';
 
-import useLocalStorage from '@/hooks/use-local-storage';
+import { useState, useEffect } from 'react';
 import type { Trip, TransportMode } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Bus, Bike, Car, Users, Clock, HelpCircle, MapPin, ArrowRight } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { db } from '@/lib/firebase';
+import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 
 
 const TransportIcon = ({ mode, className }: { mode: TransportMode; className?: string }) => {
@@ -24,15 +26,38 @@ const TransportIcon = ({ mode, className }: { mode: TransportMode; className?: s
 };
 
 export default function HistoryPageClient() {
-  const [trips] = useLocalStorage<Trip[]>('trips', []);
+  const [trips, setTrips] = useState<Trip[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const sortedTrips = [...trips].sort((a, b) => b.startTime - a.startTime);
+  useEffect(() => {
+    const q = query(collection(db, 'trips'), orderBy('startTime', 'desc'));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const tripsData: Trip[] = [];
+      querySnapshot.forEach((doc) => {
+        tripsData.push({ id: doc.id, ...doc.data() } as Trip);
+      });
+      setTrips(tripsData);
+      setIsLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  if (isLoading) {
+    return (
+        <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
+            <div className="flex h-[50vh] flex-col items-center justify-center rounded-lg border-2 border-dashed">
+                <h3 className="text-2xl font-bold tracking-tight">Loading Trip History...</h3>
+                <p className="text-muted-foreground">Fetching data from Firestore.</p>
+            </div>
+        </main>
+    );
+  }
 
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-      {sortedTrips.length > 0 ? (
+      {trips.length > 0 ? (
          <Accordion type="single" collapsible className="w-full space-y-4">
-          {sortedTrips.map(trip => (
+          {trips.map(trip => (
             <AccordionItem value={trip.id} key={trip.id} className="border-none">
                 <Card className="w-full">
                     <AccordionTrigger className="w-full text-left hover:no-underline p-0 [&>svg]:mx-6">

@@ -1,16 +1,17 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PlayCircle, StopCircle, Car, Bike, Clock, MapPin, Users, HelpCircle, Loader2, Bus } from 'lucide-react';
 import TripFormModal from './trip-form-modal';
-import useLocalStorage from '@/hooks/use-local-storage';
 import type { Trip, TransportMode } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { db } from '@/lib/firebase';
+import { collection, addDoc, query, where, onSnapshot, getDocs, limit } from 'firebase/firestore';
 
 interface CurrentTripState {
   isActive: boolean;
@@ -31,7 +32,7 @@ const TransportIcon = ({ mode, className }: { mode: TransportMode, className?: s
 let locationCounter = 1;
 
 export default function DashboardPageClient() {
-  const [trips, setTrips] = useLocalStorage<Trip[]>('trips', []);
+  const [trips, setTrips] = useState<Trip[]>([]);
   const [currentTrip, setCurrentTrip] = useState<CurrentTripState>({
     isActive: false,
     startTime: null,
@@ -42,6 +43,23 @@ export default function DashboardPageClient() {
   const [locationEnabled, setLocationEnabled] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
   const { toast } = useToast();
+
+  useEffect(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const q = query(collection(db, "trips"), where("startTime", ">=", today.getTime()));
+    
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const todaysTrips: Trip[] = [];
+      querySnapshot.forEach((doc) => {
+        todaysTrips.push({ id: doc.id, ...doc.data() } as Trip);
+      });
+      setTrips(todaysTrips.sort((a,b) => b.startTime - a.startTime));
+    });
+
+    return () => unsubscribe();
+  }, []);
+
 
   const startTrip = () => {
     if (!locationEnabled) {
@@ -88,16 +106,18 @@ export default function DashboardPageClient() {
     }, 500);
   };
   
-  const handleSaveTrip = (newTrip: Omit<Trip, 'id'>) => {
-    setTrips(prevTrips => [...prevTrips, { ...newTrip, id: crypto.randomUUID() }]);
+  const handleSaveTrip = async (newTrip: Omit<Trip, 'id'>) => {
+    try {
+        await addDoc(collection(db, "trips"), { ...newTrip, userId: 'user001' /* Mock user */ });
+        toast({ title: "Trip Saved!", description: "Your trip has been successfully saved to Firestore."});
+    } catch (e) {
+        console.error("Error adding document: ", e);
+        toast({ title: "Save Error", description: "There was a problem saving your trip.", variant: "destructive" });
+    }
     setIsModalOpen(false);
   };
 
-  const todaysTrips = useMemo(() => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return trips.filter(trip => trip.startTime >= today.getTime());
-  }, [trips]);
+  const todaysTrips = trips;
 
   const isTripControlsDisabled = !locationEnabled || isProcessing;
 
