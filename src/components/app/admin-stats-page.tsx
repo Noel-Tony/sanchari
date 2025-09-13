@@ -139,10 +139,6 @@ export default function AdminStatsPageClient() {
 
   return (
     <main className="flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold font-headline">Admin Dashboard</h1>
-      </div>
-
         {trips.length > 0 ? (
         <div className='space-y-6'>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -214,7 +210,7 @@ export default function AdminStatsPageClient() {
                      <Card>
                         <CardHeader>
                             <CardTitle>Trips by Purpose</CardTitle>
-                        </CardHeader>
+                        </CardHeader>.
                         <CardContent>
                             <ChartContainer config={purposeChartConfig} className="min-h-[250px] w-full">
                                 <PieChart>

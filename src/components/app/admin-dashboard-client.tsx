@@ -84,10 +84,6 @@ export default function AdminDashboardClient() {
 
   return (
     <main className="flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold font-headline">Admin Dashboard</h1>
-      </div>
-
       {sortedTrips.length > 0 ? (
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
