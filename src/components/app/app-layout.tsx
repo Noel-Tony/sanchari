@@ -21,6 +21,7 @@ import {
   Shield,
   BarChart,
   HelpCircle,
+  Globe,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -30,12 +31,19 @@ import { Button } from '../ui/button';
 import { ThemeToggle } from '../theme-toggle';
 import useLocalStorage from '@/hooks/use-local-storage';
 import HelpModal from './help-modal';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const [auth, setAuth] = useLocalStorage('auth', { isAuthenticated: false, role: 'user' });
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
+  const [language, setLanguage] = useState('English');
 
   const handleLogout = () => {
     setAuth({ isAuthenticated: false, role: null });
@@ -132,6 +140,25 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                   {pathname.split('/').pop() || 'Dashboard'}
               </h1>
             </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <Globe className="h-5 w-5" />
+                  <span className="sr-only">Change language</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onSelect={() => setLanguage('English')} disabled={language === 'English'}>
+                  English
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => setLanguage('Malayalam')} disabled={language === 'Malayalam'}>
+                  Malayalam
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => setLanguage('Hindi')} disabled={language === 'Hindi'}>
+                  Hindi
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <ThemeToggle />
             {auth.role === 'user' && (
               <Button variant="ghost" size="icon" onClick={() => setIsHelpModalOpen(true)}>
