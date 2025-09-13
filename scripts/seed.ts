@@ -76,6 +76,67 @@ const dummyTrips = [
     "purpose": "work",
     "coTravellers": 0,
     "distance": 8.0
+  },
+  {
+    "tripId": "t006",
+    "userId": "u001",
+    "startTime": new Date("2025-09-13T18:00").getTime(),
+    "endTime": new Date("2025-09-13T18:45").getTime(),
+    "startLocation": "Kakkanad",
+    "endLocation": "Lulu Mall",
+    "mode": "car",
+    "purpose": "shopping",
+    "coTravellers": 3,
+    "distance": 7.0
+  },
+  {
+    "tripId": "t007",
+    "userId": "u002",
+    "startTime": new Date("2025-09-13T19:00").getTime(),
+    "endTime": new Date("2025-09-13T19:30").getTime(),
+    "startLocation": "Marine Drive",
+    "endLocation": "Fort Kochi",
+    "mode": "public transport",
+    "purpose": "leisure",
+    "coTravellers": 1,
+    "distance": 9.0
+  },
+  {
+    "tripId": "t008",
+    "userId": "u003",
+    "startTime": new Date("2025-09-14T09:30").getTime(),
+    "endTime": new Date("2025-09-14T09:45").getTime(),
+    "startLocation": "Edappally",
+    "endLocation": "Amrita Hospital",
+    "mode": "bike",
+    "purpose": "work",
+    "coTravellers": 0,
+    "distance": 2.0
+  },
+  {
+    "tripId": "t009",
+    "userId": "u004",
+    "startTime": new Date("2025-09-14T14:00").getTime(),
+    "endTime": new
+Date("2025-09-14T14:20").getTime(),
+    "startLocation": "Kaloor",
+    "endLocation": "Centre Square Mall",
+    "mode": "car",
+    "purpose": "leisure",
+    "coTravellers": 2,
+    "distance": 1.5
+  },
+  {
+    "tripId": "t010",
+    "userId": "u005",
+    "startTime": new Date("2025-09-15T08:00").getTime(),
+    "endTime": new Date("2025-09-15T08:30").getTime(),
+    "startLocation": "Vyttila Hub",
+    "endLocation": "Infopark",
+    "mode": "public transport",
+    "purpose": "work",
+    "coTravellers": 0,
+    "distance": 11.0
   }
 ];
 
