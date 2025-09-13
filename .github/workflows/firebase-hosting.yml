@@ -1,0 +1,26 @@
+name: Deploy to Firebase Hosting
+
+on:
+  push:
+    branches:
+      - main # This workflow runs when code is pushed to the 'main' branch
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build project (if needed)
+        run: npm run build # Uncomment if your project needs to be built before deployment
+
+      - name: Deploy to Firebase
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
+          channelId: live
+          projectId: your-firebase-project-id # IMPORTANT: Replace this with your actual Firebase project ID
