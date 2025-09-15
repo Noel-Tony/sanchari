@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { useTour } from '@/hooks/use-tour';
-import { useLanguage } from '@/context/language-context';
+import { PopoverAnchor } from '@/components/ui/popover';
 
 type TourStep = {
   id: string;
@@ -133,18 +133,16 @@ export default function FeatureTour({ onTourComplete }: { onTourComplete: () => 
           boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.5)',
           pointerEvents: 'none',
           zIndex: 100,
+          transition: 'all 0.3s ease-in-out',
         }}
       />
         <Popover open={true}>
+            <PopoverAnchor style={{ position: 'fixed', top: rect.top + rect.height / 2, left: rect.left + rect.width / 2 }} />
             <PopoverContent
-                target={targetElement}
                 side={currentStep.side}
                 align={currentStep.align}
                 className="w-80 z-[101]"
                 onInteractOutside={(e) => e.preventDefault()}
-                // This is a bit of a hack to make PopoverContent accept a target
-                // for positioning, which it doesn't do by default. We'll use an invisible trigger.
-                asChild
             >
               <div>
                   <div className="space-y-4">
@@ -171,8 +169,6 @@ export default function FeatureTour({ onTourComplete }: { onTourComplete: () => 
                   </div>
               </div>
             </PopoverContent>
-            {/* This is the invisible trigger for the popover */}
-            <Popover.Anchor style={{ position: 'fixed', top: rect.top, left: rect.left, width: rect.width, height: rect.height }} />
         </Popover>
     </>
   );
