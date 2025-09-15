@@ -74,7 +74,6 @@ const tourSteps: TourStep[] = [
 export default function FeatureTour({ onTourComplete }: { onTourComplete: () => void }) {
   const { tourActive, setTourActive } = useTour();
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
-  const [popoverPosition, setPopoverPosition] = useState({ top: 0, left: 0, width: 0, height: 0 });
   const [targetElement, setTargetElement] = useState<HTMLElement | null>(null);
 
   const currentStep = useMemo(() => tourSteps[currentStepIndex], [currentStepIndex]);
@@ -86,9 +85,7 @@ export default function FeatureTour({ onTourComplete }: { onTourComplete: () => 
         const element = document.querySelector(currentStep.target) as HTMLElement;
         if (element) {
             setTargetElement(element);
-            const rect = element.getBoundingClientRect();
-            setPopoverPosition(rect);
-            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            element.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
             clearInterval(interval);
         }
     }, 100);
@@ -119,58 +116,64 @@ export default function FeatureTour({ onTourComplete }: { onTourComplete: () => 
   if (!tourActive || !currentStep || !targetElement) {
     return null;
   }
+  
+  const rect = targetElement.getBoundingClientRect();
 
   return (
-    <Popover open={true}>
-        <PopoverContent
-            side={currentStep.side}
-            align={currentStep.align}
-            className="w-80 z-[101]"
-            style={{
-                position: 'fixed',
-                top: `${popoverPosition.top + popoverPosition.height / 2}px`,
-                left: `${popoverPosition.left + popoverPosition.width / 2}px`,
-                transform: `translate(-50%, -50%)`, // Center on the element
-            }}
-            onInteractOutside={(e) => e.preventDefault()}
-        >
-            <div 
-                style={{
-                    position: 'absolute',
-                    top: `calc(${popoverPosition.top}px - 10px)`,
-                    left: `calc(${popoverPosition.left}px - 10px)`,
-                    width: `calc(${popoverPosition.width}px + 20px)`,
-                    height: `calc(${popoverPosition.height}px + 20px)`,
-                    border: '3px solid hsl(var(--primary))',
-                    borderRadius: 'var(--radius)',
-                    boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.5)',
-                    pointerEvents: 'none',
-                    zIndex: -1,
-                }}
-            />
-            <div className="space-y-4">
-                <h3 className="font-bold text-lg">{currentStep.title}</h3>
-                <p className="text-sm text-muted-foreground">{currentStep.content}</p>
-                <div className="flex justify-between items-center">
-                    <span className="text-xs text-muted-foreground">
-                        Step {currentStepIndex + 1} of {tourSteps.length}
-                    </span>
-                    <div className="flex gap-2">
-                        {currentStepIndex > 0 && (
-                            <Button variant="ghost" size="sm" onClick={handlePrev}>
-                                Previous
-                            </Button>
-                        )}
-                        <Button size="sm" onClick={handleNext}>
-                            {currentStepIndex === tourSteps.length - 1 ? 'Finish' : 'Next'}
-                        </Button>
-                    </div>
-                </div>
-                 <Button variant="link" size="sm" className="absolute top-2 right-2 p-0 h-auto" onClick={handleFinish}>
-                    Skip
-                </Button>
-            </div>
-        </PopoverContent>
-    </Popover>
+    <>
+      <div
+        style={{
+          position: 'fixed',
+          top: `${rect.top}px`,
+          left: `${rect.left}px`,
+          width: `${rect.width}px`,
+          height: `${rect.height}px`,
+          border: '3px solid hsl(var(--primary))',
+          borderRadius: 'var(--radius)',
+          boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.5)',
+          pointerEvents: 'none',
+          zIndex: 100,
+        }}
+      />
+        <Popover open={true}>
+            <PopoverContent
+                target={targetElement}
+                side={currentStep.side}
+                align={currentStep.align}
+                className="w-80 z-[101]"
+                onInteractOutside={(e) => e.preventDefault()}
+                // This is a bit of a hack to make PopoverContent accept a target
+                // for positioning, which it doesn't do by default. We'll use an invisible trigger.
+                asChild
+            >
+              <div>
+                  <div className="space-y-4">
+                      <h3 className="font-bold text-lg">{currentStep.title}</h3>
+                      <p className="text-sm text-muted-foreground">{currentStep.content}</p>
+                      <div className="flex justify-between items-center">
+                          <span className="text-xs text-muted-foreground">
+                              Step {currentStepIndex + 1} of {tourSteps.length}
+                          </span>
+                          <div className="flex gap-2">
+                              {currentStepIndex > 0 && (
+                                  <Button variant="ghost" size="sm" onClick={handlePrev}>
+                                      Previous
+                                  </Button>
+                              )}
+                              <Button size="sm" onClick={handleNext}>
+                                  {currentStepIndex === tourSteps.length - 1 ? 'Finish' : 'Next'}
+                              </Button>
+                          </div>
+                      </div>
+                      <Button variant="link" size="sm" className="absolute top-2 right-2 p-0 h-auto" onClick={handleFinish}>
+                          Skip
+                      </Button>
+                  </div>
+              </div>
+            </PopoverContent>
+            {/* This is the invisible trigger for the popover */}
+            <Popover.Anchor style={{ position: 'fixed', top: rect.top, left: rect.left, width: rect.width, height: rect.height }} />
+        </Popover>
+    </>
   );
 }
