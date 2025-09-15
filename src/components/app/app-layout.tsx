@@ -1,6 +1,6 @@
 
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Sidebar,
   SidebarContent,
@@ -38,6 +38,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useLanguage } from '@/context/language-context';
+import FeatureTour from './feature-tour';
+import { useTour } from '@/hooks/use-tour';
 
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -46,6 +48,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [auth, setAuth] = useLocalStorage('auth', { isAuthenticated: false, role: 'user' });
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
   const { language, setLanguage, t } = useLanguage();
+  const { tourActive, setTourActive, hasSeenTour } = useTour();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const handleLogout = () => {
     setAuth({ isAuthenticated: false, role: null });
@@ -60,12 +68,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           icon: <Shield />,
           label: 'Admin Dashboard',
           isActive: pathname === '/admin',
+          'data-tour-id': 'admin-dashboard',
         },
         {
           href: '/admin/stats',
           icon: <BarChart />,
           label: 'Statistics',
           isActive: pathname === '/admin/stats',
+           'data-tour-id': 'admin-stats',
         },
       ]
     : [
@@ -74,20 +84,25 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           icon: <LayoutDashboard />,
           label: 'Dashboard',
           isActive: pathname === '/dashboard',
+           'data-tour-id': 'dashboard',
         },
         {
           href: '/history',
           icon: <History />,
           label: 'Trip History',
           isActive: pathname === '/history',
+           'data-tour-id': 'history',
         },
         {
             href: '/stats',
             icon: <BarChart />,
             label: 'Statistics',
             isActive: pathname === '/stats',
+             'data-tour-id': 'stats',
         },
       ];
+
+  const showTour = isClient && auth.role === 'user' && !hasSeenTour && pathname === '/dashboard';
 
 
   return (
@@ -104,7 +119,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <SidebarContent>
           <SidebarMenu>
             {menuItems.map((item) => (
-               <SidebarMenuItem key={item.href}>
+               <SidebarMenuItem key={item.href} data-tour-id={item['data-tour-id']}>
                   <Link href={item.href} passHref>
                     <SidebarMenuButton asChild isActive={item.isActive} tooltip={t(item.label)}>
                       <span>
@@ -163,7 +178,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             </DropdownMenu>
             <ThemeToggle />
             {auth.role === 'user' && (
-              <Button variant="ghost" size="icon" onClick={() => setIsHelpModalOpen(true)}>
+              <Button variant="ghost" size="icon" onClick={() => setIsHelpModalOpen(true)} data-tour-id="help">
                 <HelpCircle className="h-5 w-5" />
                 <span className="sr-only">Help</span>
               </Button>
@@ -177,6 +192,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </header>
         {children}
         {isHelpModalOpen && <HelpModal onClose={() => setIsHelpModalOpen(false)} />}
+        {showTour && <FeatureTour onTourComplete={() => setTourActive(false)} />}
       </SidebarInset>
     </SidebarProvider>
   );

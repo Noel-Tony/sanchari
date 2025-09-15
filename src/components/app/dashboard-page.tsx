@@ -132,7 +132,7 @@ export default function DashboardPageClient() {
                 <CardTitle className="text-2xl font-medium font-headline">
                 {currentTrip.isActive ? t('Trip in Progress') : t('Start a New Trip')}
                 </CardTitle>
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2" data-tour-id="location-toggle">
                     <Switch 
                         id="location-toggle"
                         checked={locationEnabled}
@@ -168,7 +168,7 @@ export default function DashboardPageClient() {
                         <p className="text-md text-muted-foreground">
                             {locationEnabled ? t('Click "Start Trip" to begin recording your journey.') : t('Enable location to start a new trip.')}
                         </p>
-                        <Button onClick={startTrip} size="lg" disabled={isTripControlsDisabled} variant={locationEnabled ? 'default' : 'secondary'}>
+                        <Button onClick={startTrip} size="lg" disabled={isTripControlsDisabled} variant={locationEnabled ? 'default' : 'secondary'} data-tour-id="start-trip-button">
                             {isProcessing ? <Loader2 className="animate-spin" /> : <PlayCircle />}
                             <span className="ml-2">{t('Start Trip')}</span>
                         </Button>
