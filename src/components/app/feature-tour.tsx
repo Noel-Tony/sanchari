@@ -9,6 +9,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { useTour } from '@/hooks/use-tour';
 import { PopoverAnchor } from '@/components/ui/popover';
+import { useLanguage } from '@/context/language-context';
 
 type TourStep = {
   id: string;
@@ -75,6 +76,7 @@ export default function FeatureTour({ onTourComplete }: { onTourComplete: () => 
   const { tourActive, setTourActive } = useTour();
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [targetElement, setTargetElement] = useState<HTMLElement | null>(null);
+  const { t } = useLanguage();
 
   const currentStep = useMemo(() => tourSteps[currentStepIndex], [currentStepIndex]);
 
@@ -146,25 +148,25 @@ export default function FeatureTour({ onTourComplete }: { onTourComplete: () => 
             >
               <div>
                   <div className="space-y-4">
-                      <h3 className="font-bold text-lg">{currentStep.title}</h3>
-                      <p className="text-sm text-muted-foreground">{currentStep.content}</p>
+                      <h3 className="font-bold text-lg">{t(currentStep.title)}</h3>
+                      <p className="text-sm text-muted-foreground">{t(currentStep.content)}</p>
                       <div className="flex justify-between items-center">
                           <span className="text-xs text-muted-foreground">
-                              Step {currentStepIndex + 1} of {tourSteps.length}
+                              {t('Step')} {currentStepIndex + 1} {t('of')} {tourSteps.length}
                           </span>
                           <div className="flex gap-2">
                               {currentStepIndex > 0 && (
                                   <Button variant="ghost" size="sm" onClick={handlePrev}>
-                                      Previous
+                                      {t('Previous')}
                                   </Button>
                               )}
                               <Button size="sm" onClick={handleNext}>
-                                  {currentStepIndex === tourSteps.length - 1 ? 'Finish' : 'Next'}
+                                  {currentStepIndex === tourSteps.length - 1 ? t('Finish') : t('Next')}
                               </Button>
                           </div>
                       </div>
                       <Button variant="link" size="sm" className="absolute top-2 right-2 p-0 h-auto" onClick={handleFinish}>
-                          Skip
+                          {t('Skip')}
                       </Button>
                   </div>
               </div>
